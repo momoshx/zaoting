@@ -998,7 +998,7 @@ function openDataMgmt(){
   const syncCard=`
     <div class="card" style="margin-top:14px;background:#eef6ff;">
       <h2>☁️ 云同步（让各设备数据一致）</h2>
-      <div class="hint">开启后，数据会自动备份到云端：在微信里改、桌面图标里也同步看到。只用「家长模式」配置一次。推荐用免费的 GitHub Gist（只需一个仅 gist 权限的 Token）。</div>
+      <div class="hint">开启后，数据会自动备份到云端：在微信里改、桌面图标里也同步看到。只用「家长模式」配置一次。推荐用免费的 GitHub Gist（Token 需要 gist 权限）。⚠️ 注意：<b>这个 Token 一旦被你撤销或过期，云同步就会失效（报 401）</b>，那时重新填一个有效 Token 即可。也可以点「➕ 一键创建同步空间」自动建好。</div>
       <label class="fld">存储方式</label>
       <select id="syncProvider">
         <option value="gist" ${sy.provider==='gist'?'selected':''}>GitHub Gist（免费）</option>
@@ -1014,6 +1014,7 @@ function openDataMgmt(){
       <div id="syncStatus" class="hint">${sy.lastSync?('上次同步：'+new Date(sy.lastSync).toLocaleString()):'尚未同步'}</div>
       <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px;">
         <button class="btn green sm" data-act="syncSave">💾 保存设置</button>
+        <button class="btn blue sm" data-act="syncCreate">➕ 一键创建同步空间</button>
         <button class="btn blue sm" data-act="syncTest">🔍 连接测试</button>
         <button class="btn yellow sm" data-act="syncPush">⬆️ 立即上传</button>
         <button class="btn yellow sm" data-act="syncPull">⬇️ 立即拉取</button>
@@ -1057,6 +1058,12 @@ function syncHeaders(){
   return h;
 }
 function setSyncStatus(t){const el=document.getElementById('syncStatus'); if(el)el.textContent=t;}
+function syncHttpErr(code){
+  if(code===401)return '令牌已失效（HTTP 401）：GitHub Token 可能被撤销或过期了。请在云同步里重新填写一个【有效且带 gist 权限】的 Token（注意：令牌一旦被你撤销，同步就会失效）。';
+  if(code===403)return '没有权限（HTTP 403）：该 Token 缺少 gist 权限，请重新生成并勾选 gist。';
+  if(code===404)return '找不到同步空间（HTTP 404）：Gist ID 不对，或该 Gist 已被删除。';
+  return 'HTTP '+code;
+}
 function scheduleSyncPush(){ if(_busy||!DB.sync.enabled||!DB.sync.auto)return; clearTimeout(_syncTimer); _syncTimer=setTimeout(()=>{syncPush();},800); }
 async function syncPush(){
   if(_busy)return; const s=DB.sync;
@@ -1066,11 +1073,11 @@ async function syncPush(){
     if(s.provider==='gist'){
       if(!s.token||!s.gistId){toast('请填写 Token 和 Gist ID');return;}
       const res=await fetch('https://api.github.com/gists/'+s.gistId,{method:'PATCH',headers:syncHeaders(),body:JSON.stringify({files:{'zaoting.json':{content:JSON.stringify(DB)}}})});
-      if(!res.ok)throw new Error('HTTP '+res.status);
+      if(!res.ok)throw new Error(syncHttpErr(res.status));
     } else {
       if(!s.token||!s.customUrl){toast('请填写 Token 和接口地址');return;}
       const res=await fetch(s.customUrl,{method:'PUT',headers:syncHeaders(),body:JSON.stringify(DB)});
-      if(!res.ok)throw new Error('HTTP '+res.status);
+      if(!res.ok)throw new Error(syncHttpErr(res.status));
     }
     s.lastSync=Date.now(); saveLocal();
     setSyncStatus('✅ 已上传到云端 '+new Date().toLocaleTimeString());
@@ -1083,12 +1090,12 @@ async function syncPull(){
   if(s.provider==='gist'){
     if(!s.token||!s.gistId){toast('请填写 Token 和 Gist ID');return null;}
     const res=await fetch('https://api.github.com/gists/'+s.gistId,{headers:syncHeaders()});
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    if(!res.ok)throw new Error(syncHttpErr(res.status));
     const data=await res.json(); const f=data.files&&data.files['zaoting.json']; text=f?f.content:null;
   } else {
     if(!s.token||!s.customUrl){toast('请填写 Token 和接口地址');return null;}
     const res=await fetch(s.customUrl,{headers:syncHeaders()});
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    if(!res.ok)throw new Error(syncHttpErr(res.status));
     text=await res.text();
   }
   if(!text){toast('云端还没有数据，请先上传一次');return null;}
@@ -1109,14 +1116,28 @@ function syncSave(){
   saveLocal(); toast(s.enabled?'云同步已开启 ☁️':'已保存（还需填写完整信息才会开启）');
   if(s.enabled) syncPush();
 }
+async function syncCreate(){
+  const s=DB.sync;
+  if(!s.token){toast('请先在上方填写 Token');return;}
+  setSyncStatus('正在创建同步空间…');
+  try{
+    const res=await fetch('https://api.github.com/gists',{method:'POST',headers:syncHeaders(),body:JSON.stringify({public:false,description:'zaoting 学习乐园 云同步',files:{'zaoting.json':{content:JSON.stringify(DB)}}})});
+    if(!res.ok)throw new Error(syncHttpErr(res.status));
+    const j=await res.json();
+    s.gistId=j.id; s.enabled=true; saveLocal();
+    const el=document.getElementById('syncId'); if(el)el.value=s.gistId;
+    setSyncStatus('✅ 已创建同步空间，Gist ID：'+s.gistId+'（已自动开启并上传）');
+    syncPush();
+  }catch(e){ setSyncStatus('❌ 创建失败：'+(e.message||e)); }
+}
 async function syncTest(){
   const s=DB.sync;
   if(s.provider==='gist'){ if(!s.token||!s.gistId){toast('先填写 Token 和 Gist ID');return;} }
   else { if(!s.token||!s.customUrl){toast('先填写 Token 和接口地址');return;} }
   setSyncStatus('测试中…');
   try{
-    if(s.provider==='gist'){ const res=await fetch('https://api.github.com/gists/'+s.gistId,{headers:syncHeaders()}); if(!res.ok)throw new Error('HTTP '+res.status); }
-    else { const res=await fetch(s.customUrl,{headers:syncHeaders()}); if(!res.ok)throw new Error('HTTP '+res.status); }
+    if(s.provider==='gist'){ const res=await fetch('https://api.github.com/gists/'+s.gistId,{headers:syncHeaders()}); if(!res.ok)throw new Error(syncHttpErr(res.status)); }
+    else { const res=await fetch(s.customUrl,{headers:syncHeaders()}); if(!res.ok)throw new Error(syncHttpErr(res.status)); }
     setSyncStatus('✅ 连接成功，可以读取');
   }catch(e){ setSyncStatus('❌ 连接失败：'+(e.message||e)); }
 }
@@ -1184,6 +1205,7 @@ document.addEventListener('click',e=>{
   else if(act==='importData'){importData();}
   else if(act==='clearData'){clearData();}
   else if(act==='syncSave'){syncSave();}
+  else if(act==='syncCreate'){syncCreate();}
   else if(act==='syncTest'){syncTest();}
   else if(act==='syncPush'){syncPush();}
   else if(act==='syncPull'){syncPull();}
@@ -1221,7 +1243,8 @@ $('#mask').addEventListener('click',e=>{ if(e.target.id==='mask') closeModal(); 
 /* ============ 启动 ============ */
 async function boot(){
   if(DB.sync.enabled){
-    try{ await syncPull(); }catch(e){ console.warn('云同步拉取失败',e); }
+    try{ await syncPull(); }
+    catch(e){ console.warn('云同步拉取失败',e); const m=(e&&e.message)||''; if(/401|403|404/.test(m)){ setTimeout(()=>toast('☁️ 云同步未连接：'+(m.length>60?m.slice(0,60)+'…':m)),400); } }
   }
   if(!DB.pass.parent){ openModeSetup(); }
   renderNav();
