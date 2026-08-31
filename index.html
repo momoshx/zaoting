@@ -79,7 +79,8 @@
   .reward{display:flex; align-items:center; gap:14px; padding:16px; border-radius:18px; background:#fbf6ff; margin-bottom:12px;}
   .reward .ri{font-size:38px;}
   .reward .rbody{flex:1;}
-  .reward .rname{font-weight:800; font-size:16px;}
+  .reward .rname{font-weight:800; font-size:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .child-badge{font-size:11px; font-weight:700; color:#fff; background:linear-gradient(135deg,#ffb347,#ff9a3c); padding:2px 8px; border-radius:999px; white-space:nowrap;}
   .reward .rcost{font-size:13px; color:#9a87a5;}
   .reward .rlim{font-size:12px; color:var(--purple-d); font-weight:700;}
   .stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px;}
@@ -723,9 +724,9 @@ function renderMusic(){
 
 /* ============ 奖励商城 ============ */
 const REWARDS={
-  yuan:{cost:5,name:'1元零花钱',icon:'💰',cap:10,desc:'5⭐ 换 1元（每月最多换 10元）'},
-  cartoon:{cost:10,name:'看电影',icon:'🎬',cap:2,desc:'10⭐ 换一场电影（每月限 2次）'},
-  drink:{cost:10,name:'饮料一杯',icon:'🥤',cap:2,desc:'10⭐ 换一杯饮料（每月限 2次）'},
+  yuan:{cost:5,name:'1元零花钱',icon:'💰',cap:10,desc:'5⭐ 换 1元（每月最多换 10元）',child:true},
+  cartoon:{cost:10,name:'看电影',icon:'🎬',cap:2,desc:'10⭐ 换一场电影（每月限 2次）',child:true},
+  drink:{cost:10,name:'饮料一杯',icon:'🥤',cap:2,desc:'10⭐ 换一杯饮料（每月限 2次）',child:true},
 };
 const PETS={
   dog:{emoji:'🐶',name:'小狗',food:{name:'🦴 骨头',cost:3,exp:6},house:{emoji:'🏠',name:'狗窝',cost:10},toy:{name:'🎾 网球',cost:4,exp:10}},
@@ -779,21 +780,26 @@ function renderStore(){
   const isParent=DB.mode==='parent';
   const cards=Object.keys(REWARDS).map(k=>{
     const r=REWARDS[k];const used=monthUsed(k);const left=r.cap-used;
-    const can=isParent && DB.stars>=r.cost && left>0;
+    const childOk=!!r.child;
+    const can=(isParent||childOk) && DB.stars>=r.cost && left>0;
+    const label=(isParent||childOk)?'兑换':'需家长';
     return `<div class="reward">
       <div class="ri">${r.icon}</div>
-      <div class="rbody"><div class="rname">${r.name}</div>
+      <div class="rbody"><div class="rname">${r.name} ${childOk?'<span class="child-badge">🔓 小朋友可换</span>':''}</div>
         <div class="rcost">${r.desc}</div>
         <div class="rlim">本月已用 ${used}/${r.cap} · 剩余 ${Math.max(left,0)}</div></div>
-      <button class="btn ${can?'yellow':'ghost'}" data-act="redeem" data-type="${k}" ${can?'':'disabled'}>${isParent?'兑换':'需家长'}</button>
+      <button class="btn ${can?'yellow':'ghost'}" data-act="redeem" data-type="${k}" ${can?'':'disabled'}>${label}</button>
     </div>`;
   }).join('');
   const hist=DB.rewards.history.slice().reverse().slice(0,10);
   const histHtml=hist.length?hist.map(h=>{const r=REWARDS[h.type];return `<div class="item"><div class="ic">${r.icon}</div><div class="body"><div class="tt">${r.name}</div><div class="sub">${h.month} · -⭐${h.cost}</div></div></div>`;}).join(''):'<div class="hint">还没有兑换记录。</div>';
+  const storeHint=isParent
+    ? '点击「兑换」即可扣除星星并记录。'
+    : '标了 🔓 的奖励（零花钱 / 看电影 / 饮料）小朋友可以自己兑换；其余需要爸爸妈妈在「家长模式」里确认哦～';
   $('#view').innerHTML=`<div class="card"><h2>🎁 奖励商城</h2>
     <div class="stars-pill" style="display:inline-block;margin-bottom:10px;">⭐ 当前星星：${DB.stars}</div>
     ${cards}
-    <div class="hint">${isParent?'点击「兑换」即可扣除星星并记录。':'兑换需要爸爸妈妈在「家长模式」里确认哦～'}</div>
+    <div class="hint">${storeHint}</div>
     <h2 style="margin-top:18px;">📜 兑换记录</h2>${histHtml}</div>${renderPet()}`;
 }
 function redeem(type){
