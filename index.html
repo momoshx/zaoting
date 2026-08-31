@@ -272,7 +272,7 @@ function renderNav(){
   const side=$('#navSide'), bot=$('#navBottom');
   const mk=(n)=>`<button class="nav-btn ${n.id===cur?'active':''}" data-act="nav" data-id="${n.id}"><span class="ic">${n.icon}</span><span>${n.name}</span></button>`;
   side.innerHTML=NAV.map(mk).join('');
-  bot.innerHTML=NAV.map(mk).join('');
+  bot.innerHTML=NAV.map(mk).join('') + `<button class="nav-btn" data-act="dataMgmt"><span class="ic">💾</span><span>数据</span></button>`;
   $('#footInfo').innerHTML='数据存在本机 · 不会丢失<br>当前：'+(DB.mode==='parent'?'👨‍👩‍👧 家长模式':'👶 孩子模式');
   $('#starPill').textContent='⭐ '+DB.stars;
   $('#modeBtn').textContent=DB.mode==='parent'?'👨‍👩‍👧 家长模式':'👶 孩子模式';
