@@ -145,6 +145,9 @@
   /* ===== 宠物乐园 ===== */
   .pet-card{background:#fff; border:2px solid #f0e6f4; border-radius:18px; padding:14px; margin-bottom:12px; text-align:center;}
   .pet-card .pet-hero{font-size:60px;}
+  .pet-bubble{display:inline-block; background:#fff; border:2px solid #ffd6e7; border-radius:14px; padding:7px 12px; margin-bottom:8px; font-size:14px; font-weight:700; color:#c2185b; box-shadow:0 2px 6px rgba(0,0,0,.06); position:relative;}
+  .pet-bubble::after{content:''; position:absolute; left:50%; bottom:-8px; transform:translateX(-50%); border:6px solid transparent; border-top-color:#ffd6e7;}
+  .timer-box{display:inline-block; background:linear-gradient(135deg,#fff3bf,#ffe066); color:#8a6d00; font-weight:800; font-size:15px; padding:5px 12px; border-radius:20px; box-shadow:0 2px 6px rgba(0,0,0,.08);}
   .pet-opts-title{margin:14px 0 6px; font-size:14px; font-weight:800; color:#8a7794;}
   .pet-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px;}
   .pet-opt{background:#fff; border:2px solid #f0e6f4; border-radius:16px; padding:12px 6px; text-align:center; cursor:pointer; transition:.15s;}
@@ -275,6 +278,7 @@ function renderNav(){
 }
 function showModule(id){
   cur=id;
+  clearGameTimers();
   const n=NAV.find(x=>x.id===id);
   $('#pageTitle').textContent=n.icon+' '+n.name;
   renderNav();
@@ -473,18 +477,41 @@ function enWriteAdd(){
 
 /* ============ 计算乐园 ============ */
 let quiz=null, sudoku=null;
+let sudokuTimer=null, quizTimer=null;
+function clearGameTimers(){ if(sudokuTimer){clearInterval(sudokuTimer);sudokuTimer=null;} if(quizTimer){clearInterval(quizTimer);quizTimer=null;} }
+function fmtTime(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function startSudokuTimer(){
+  clearInterval(sudokuTimer);
+  const el=document.getElementById('sudokuTimer'); if(!el)return;
+  const end=sudoku.start+sudoku.limit;
+  sudokuTimer=setInterval(()=>{
+    const remain=end-Date.now();
+    if(remain<=0){clearInterval(sudokuTimer);sudokuTimer=null;sudoku.overtime=true;el.textContent='⏰ 时间到（再完成得基础星）';el.style.color='#e74c3c';return;}
+    el.textContent='⏱️ 剩余 '+fmtTime(remain);
+  },250);
+}
+function startQuizTimer(){
+  clearInterval(quizTimer);
+  const el=document.getElementById('quizTimer'); if(!el)return;
+  const end=quiz.start+quiz.limit;
+  quizTimer=setInterval(()=>{
+    const remain=end-Date.now();
+    if(remain<=0){clearInterval(quizTimer);quizTimer=null;quiz.overtime=true;el.textContent='⏰ 时间到（再完成得基础星）';el.style.color='#e74c3c';return;}
+    el.textContent='⏱️ 剩余 '+fmtTime(remain);
+  },250);
+}
 function renderMath(){
   $('#view').innerHTML=`<div class="card"><h2>➗ 算术闯关（100以内）</h2>
     <div id="quizBox">
-      <div class="hint">随机 10 道题（加、减、乘、除），答对 8 题以上得 ⭐2；若 1 分钟内全部答对，额外 +⭐1！每天最多玩 3 次。</div>
+      <div class="hint">随机 10 道题（加、减、乘、除），答对 8 题以上得 ⭐2；若 1 分钟内全部答对，额外 +⭐1（共 ⭐3）！做题时有 1 分钟倒计时哦。每天最多玩 3 次。</div>
       <button class="btn" data-act="quizStart" style="margin-top:12px;width:100%;">🎯 开始挑战</button>
     </div></div>
     <div class="card"><h2>🔢 数独小游戏</h2>
       <div class="row">
-        <button class="btn green" data-act="sudokuNew" data-size="6">6×6 简单（⭐1）</button>
-        <button class="btn" data-act="sudokuNew" data-size="9">9×9 困难（⭐2）</button>
+        <button class="btn green" data-act="sudokuNew" data-size="6">6×6 简单（⭐2）</button>
+        <button class="btn" data-act="sudokuNew" data-size="9">9×9 困难（⭐3）</button>
       </div>
-      <div class="hint">⏱️ 简单 1 分钟内完成 → 共 ⭐2；困难 2 分钟内完成 → 共 ⭐3。两种模式每天合计最多玩 3 次哦！</div>
+      <div class="hint">⏱️ 简单 2 分钟内完成 → 共 ⭐2；困难 5 分钟内完成 → 共 ⭐3。做题时有自动倒计时，时间到再完成只能得基础星。两种模式每天合计最多玩 3 次哦！</div>
       <div id="sudokuBox" style="margin-top:12px;"></div>
     </div>`;
 }
@@ -492,7 +519,8 @@ function quizStart(){
   const dk=quizDailyKey();
   if(dk.count>=3){toast('今天算术已经玩了 3 次啦，明天再来～');return;}
   dk.count++; save();
-  quiz={probs:[],idx:0,correct:0,start:Date.now()};
+  clearGameTimers();
+  quiz={probs:[],idx:0,correct:0,start:Date.now(),limit:60000,overtime:false};
   const ops=['+','-','×','÷'];
   for(let i=0;i<10;i++){
     const op=ops[Math.floor(Math.random()*4)]; let a,b,res;
@@ -506,10 +534,14 @@ function quizStart(){
 }
 function quizRender(){
   const p=quiz.probs[quiz.idx];
-  $('#quizBox').innerHTML=`<div style="font-size:15px;font-weight:700;margin-bottom:8px;">第 ${quiz.idx+1} / 10 题　✅已对：${quiz.correct}</div>
+  $('#quizBox').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;margin-bottom:8px;">
+      <span>第 ${quiz.idx+1} / 10 题　✅已对：${quiz.correct}</span>
+      <span id="quizTimer" class="timer-box">⏱️ 剩余 1:00</span>
+    </div>
     <div style="font-size:30px;font-weight:800;text-align:center;margin:14px 0;">${p.a} ${p.op} ${p.b} = ?</div>
     <input id="qAns" type="number" inputmode="numeric" placeholder="输入答案" style="font-size:22px;text-align:center;" />
     <button class="btn" data-act="quizSubmit" style="margin-top:12px;width:100%;">下一题 ➡️</button>`;
+  startQuizTimer();
   setTimeout(()=>{const e=$('#qAns'); if(e)e.focus();},50);
 }
 function quizSubmit(){
@@ -520,9 +552,10 @@ function quizSubmit(){
   quiz.idx++;
   if(quiz.idx<10){quizRender();}
   else{
+    clearInterval(quizTimer);quizTimer=null;
     const elapsed=(Date.now()-quiz.start)/1000;
     let star=quiz.correct>=8?2:0;
-    const bonus=star>0 && quiz.correct===10 && elapsed<=60;
+    const bonus=star>0 && quiz.correct===10 && !quiz.overtime && elapsed<=60;
     if(bonus)star+=1;
     if(star>0)addStars(star,'计算乐园·算术','答对'+quiz.correct+'/10'+(bonus?'（限时全对+⭐1）':''));
     DB.quizLog.push({ts:Date.now(),date:today(),problems:10,correct:quiz.correct,stars:star});
@@ -565,7 +598,8 @@ function sudokuNew(size){
   if(dk.count>=3){toast('今天数独已经玩了 3 次啦，明天再来～');return;}
   dk.count++; save();
   const n=+size; const br=n===6?2:3, bc=3; const holes=n===6?14:46;
-  sudoku={n,br,bc,start:Date.now(),data:makePuzzle(n,br,bc,holes)};
+  const limit=n===6?120000:300000;
+  sudoku={n,br,bc,start:Date.now(),limit,overtime:false,data:makePuzzle(n,br,bc,holes)};
   renderSudoku();
 }
 function renderSudoku(){
@@ -577,12 +611,14 @@ function renderSudoku(){
     html+=`<input class="${cls.join(' ')}" data-r="${r}" data-c="${c}" value="${v?v:''}" ${given?'readonly':''} inputmode="numeric" maxlength="1"/>`;
   }
   html+=`</div></div>
+    <div style="text-align:center;margin-top:8px;"><span id="sudokuTimer" class="timer-box">⏱️ 剩余 ${n===6?'2:00':'5:00'}</span></div>
     <div class="row" style="margin-top:10px;">
       <button class="btn green sm" data-act="sudokuCheck">✅ 检查 / 完成</button>
       <button class="btn ghost sm" data-act="sudokuNew" data-size="${n}">🔄 换一题</button>
     </div>
-    <div class="hint">完成 ${n}×${n} 数独可得 ⭐${n===6?1:2}！${n===6?'简单':'困难'}</div>`;
+    <div class="hint">完成 ${n}×${n} 数独 ${n===6?'2':'5'} 分钟内可得 ⭐${n===6?2:3}！${n===6?'简单':'困难'}</div>`;
   $('#sudokuBox').innerHTML=html;
+  startSudokuTimer();
 }
 function sudokuCheck(){
   const {n,data}=sudoku;const solution=data.solution;const grid=$('#sGrid');
@@ -594,12 +630,13 @@ function sudokuCheck(){
   });
   if(!filled){toast('还有空格没填哦');return;}
   if(allRight){
+    clearInterval(sudokuTimer);sudokuTimer=null;
     const elapsed=(Date.now()-sudoku.start)/1000;
-    const limit=n===6?60:120;
+    const limit=(sudoku.limit||(n===6?120000:300000))/1000;
     let star=n===6?1:2;
-    const fast=elapsed<=limit;
+    const fast=!sudoku.overtime && elapsed<=limit;
     if(fast)star+=1;
-    addStars(star,'数独'+n+'×'+n,'完成'+n+'×'+n+'数独');
+    addStars(star,'数独'+n+'×'+n,'完成'+n+'×'+n+'数独'+(fast?'（限时）':''));
     DB.sudokuLog.push({ts:Date.now(),date:today(),size:n,stars:star});save();
     renderNav();
     const left=sudokuDailyKey().count;
@@ -709,7 +746,8 @@ function renderPet(){
       const houseSize=Math.min(60,24+(pet.house-1)*5);
       const canFeed=DB.stars>=p.food.cost, canToy=DB.stars>=p.toy.cost, canHouse=DB.stars>=p.house.cost;
       return `<div class="pet-card">
-        <div class="pet-hero" style="font-size:${petSize}px;transition:font-size .4s;">${p.emoji}</div>
+        ${pet.msg?`<div class="pet-bubble">${esc(pet.msg)}</div>`:''}
+        <div class="pet-hero" data-act="petTalk" data-pid="${pet.id}" style="font-size:${petSize}px;transition:font-size .4s;cursor:pointer;" title="点我跟我说话">${p.emoji}</div>
         <div class="pet-lv">${p.name} · Lv.${pet.level}</div>
         <div style="font-size:${houseSize}px;line-height:1;transition:font-size .4s;">${p.house.emoji} ${p.house.name} Lv.${pet.house}</div>
         <div class="fld" style="margin-top:6px;text-align:left;">成长值 ${pet.exp}/${need}</div>
@@ -769,12 +807,26 @@ function redeem(type){
   toast('兑换成功！🎉');
 }
 function getPet(pid){return (DB.pets||[]).find(p=>p.id===pid);}
+const PET_MSGS={
+  thanks:['谢谢你小主人，好吃！😋','好饱呀～再多喂我一点嘛🥺','嗯～真香，最喜欢你了❤️','小主人最棒啦！','吃饱了更有力气长大啦💪'],
+  toy:['这个玩具好好玩！🎾','谢谢你陪我玩～','好开心呀！再来一次嘛😄','你真好，小主人！'],
+  levelup:['我长大啦！谢谢小主人💖','看我变大了！都是你的功劳🌟','升级咯！我会更可爱哦✨'],
+  greet:['你好呀小主人，以后请多关照🐾','我会乖乖的，多来看看我哦～'],
+  hungry:['小主人，我还想吃点东西🍖','陪我玩会儿好不好？🎁','今天也要好好照顾我哦！','喂我点好吃的嘛，求求啦🥺']
+};
+function pickMsg(a){return a[Math.floor(Math.random()*a.length)];}
+function petTalk(pid){
+  const pet=getPet(pid);if(!pet)return;const p=PETS[pet.type];
+  const pool=[...PET_MSGS.thanks,...PET_MSGS.hungry, p.toy.name+'在哪里？想玩🎁','最喜欢小主人啦❤️','我长大一点了吗？🐣'];
+  pet.msg=pickMsg(pool);save();renderStore();
+}
 function petFeed(pid){
   const pet=getPet(pid);if(!pet)return;const p=PETS[pet.type];
   if(DB.stars<p.food.cost){toast('星星不够啦，还差'+(p.food.cost-DB.stars)+'⭐');return;}
   DB.stars-=p.food.cost;addActivity(today(),'宠物乐园','喂养'+p.name,-p.food.cost);
   pet.exp+=p.food.exp;let up=false;
   while(pet.exp>=pet.level*10){pet.exp-=pet.level*10;pet.level++;up=true;}
+  pet.msg=up?pickMsg(PET_MSGS.levelup):pickMsg(PET_MSGS.thanks);
   save();renderNav();renderStore();
   toast(up?('🎉 升级啦！'+p.emoji+' 长大到 Lv.'+pet.level):('喂食成功，成长值 +'+p.food.exp));
 }
@@ -784,6 +836,7 @@ function petToy(pid){
   DB.stars-=p.toy.cost;addActivity(today(),'宠物乐园','送'+p.name+p.toy.name,-p.toy.cost);
   pet.exp+=p.toy.exp;let up=false;
   while(pet.exp>=pet.level*10){pet.exp-=pet.level*10;pet.level++;up=true;}
+  pet.msg=up?pickMsg(PET_MSGS.levelup):pickMsg(PET_MSGS.toy);
   save();renderNav();renderStore();
   toast(up?('🎉 升级啦！'+p.emoji+' 长大到 Lv.'+pet.level):('送玩具成功，成长值 +'+p.toy.exp));
 }
@@ -799,7 +852,7 @@ function petAdopt(t){
   if((DB.pets||[]).length>=3){toast('最多只能同时养 3 只宠物啦，先放生一只吧');return;}
   if(DB.stars<5){toast('领养需要 5 颗星，还差 '+(5-DB.stars)+' ⭐');return;}
   DB.stars-=5;addActivity(today(),'宠物乐园','领养'+PETS[t].name,-5);
-  DB.pets.push({id:uid(),type:t,level:1,exp:0,house:1});
+  DB.pets.push({id:uid(),type:t,level:1,exp:0,house:1,msg:pickMsg(PET_MSGS.greet)});
   save();renderNav();renderStore();toast('领养了'+PETS[t].name+'！🎉（花费 5 ⭐）');
 }
 function petRelease(pid){
@@ -1100,6 +1153,7 @@ document.addEventListener('click',e=>{
   else if(act==='setAvatar'){const f=$('#avatarFile');if(f)f.click();}
   else if(act==='redeem'){redeem(type);}
   else if(act==='adoptPet'){petAdopt(el.dataset.type);}
+  else if(act==='petTalk'){petTalk(el.dataset.pid);}
   else if(act==='petFeed'){petFeed(el.dataset.pid);}
   else if(act==='petToy'){petToy(el.dataset.pid);}
   else if(act==='petHouse'){petHouse(el.dataset.pid);}
