@@ -1105,18 +1105,23 @@ async function syncPull(){
   setSyncStatus('✅ 已从云端拉取 '+new Date().toLocaleTimeString());
   return DB;
 }
-function syncSave(){
+function syncReadForm(){
   const s=DB.sync;
   s.provider=document.getElementById('syncProvider').value;
   s.token=document.getElementById('syncToken').value.trim();
   s.gistId=document.getElementById('syncId').value.trim();
   s.customUrl=document.getElementById('syncUrl').value.trim();
   s.auto=document.getElementById('syncAuto').checked;
+}
+function syncSave(){
+  syncReadForm();
+  const s=DB.sync;
   s.enabled=!!(s.token && (s.provider==='gist'?s.gistId:s.customUrl));
   saveLocal(); toast(s.enabled?'云同步已开启 ☁️':'已保存（还需填写完整信息才会开启）');
   if(s.enabled) syncPush();
 }
 async function syncCreate(){
+  syncReadForm();
   const s=DB.sync;
   if(!s.token){toast('请先在上方填写 Token');return;}
   setSyncStatus('正在创建同步空间…');
@@ -1131,6 +1136,7 @@ async function syncCreate(){
   }catch(e){ setSyncStatus('❌ 创建失败：'+(e.message||e)); }
 }
 async function syncTest(){
+  syncReadForm();
   const s=DB.sync;
   if(s.provider==='gist'){ if(!s.token||!s.gistId){toast('先填写 Token 和 Gist ID');return;} }
   else { if(!s.token||!s.customUrl){toast('先填写 Token 和接口地址');return;} }
@@ -1207,8 +1213,8 @@ document.addEventListener('click',e=>{
   else if(act==='syncSave'){syncSave();}
   else if(act==='syncCreate'){syncCreate();}
   else if(act==='syncTest'){syncTest();}
-  else if(act==='syncPush'){syncPush();}
-  else if(act==='syncPull'){syncPull();}
+  else if(act==='syncPush'){syncReadForm();syncPush();}
+  else if(act==='syncPull'){syncReadForm();syncPull();}
   else if(act==='closeModal'){closeModal();}
 });
 document.addEventListener('change',async e=>{
