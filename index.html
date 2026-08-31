@@ -97,7 +97,7 @@
   .feed .fs.neg{color:#e0558a;}
   .mask{position:fixed; inset:0; background:rgba(90,70,100,.45); display:none; align-items:center; justify-content:center; z-index:60; padding:20px;}
   .mask.show{display:flex;}
-  .modal{background:#fff; border-radius:24px; padding:22px; width:100%; max-width:380px; box-shadow:0 20px 50px rgba(0,0,0,.25);}
+  .modal{background:#fff; border-radius:24px; padding:22px; width:100%; max-width:380px; box-shadow:0 20px 50px rgba(0,0,0,.25); max-height:calc(100vh - 40px); overflow-y:auto; -webkit-overflow-scrolling:touch;}
   .modal h3{margin:0 0 14px; text-align:center;}
   .toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:rgba(90,70,100,.92); color:#fff; padding:12px 22px; border-radius:999px; font-weight:700; z-index:90; opacity:0; transition:.3s; pointer-events:none; max-width:90vw; text-align:center;}
   .toast.show{opacity:1; bottom:110px;}
@@ -113,6 +113,10 @@
     .topbar h1{font-size:19px;}
     .sudoku.very9{grid-template-columns:repeat(9,34px);}
     .sudoku.very9 .scell{width:34px; height:34px; line-height:34px; font-size:16px;}
+    .mask{padding:10px;}
+    .modal{max-height:calc(100vh - 20px); padding:16px; border-radius:18px;}
+    .modal h3{font-size:18px;}
+    .modal .btn{font-size:15px;}
   }
   /* ===== 成就墙 / 勋章 / 头像 ===== */
   .achieve{background:linear-gradient(135deg,#fff7fb,#f3f8ff);}
