@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>🌈 早安学习乐园</title>
+<style>
+  :root{
+    --pink:#FFB3D9; --blue:#A0D8FF; --yellow:#FFE680; --green:#B5EAD7; --purple:#D7B3FF;
+    --pink-d:#FF8FC4; --blue-d:#6FC3FF; --yellow-d:#FFD23F; --green-d:#7FDDB0; --purple-d:#B98CFF;
+    --ink:#5b4a63; --card:#ffffff; --bg1:#fff0f7; --bg2:#eef6ff;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif; color:var(--ink);}
+  body{background:linear-gradient(135deg,var(--bg1),var(--bg2)); min-height:100vh; font-size:16px; padding-bottom:env(safe-area-inset-bottom);}
+  .sidebar{position:fixed; top:0; left:0; bottom:0; width:210px; background:rgba(255,255,255,.75); backdrop-filter:blur(8px); padding:18px 12px; display:flex; flex-direction:column; gap:6px; z-index:30; box-shadow:2px 0 16px rgba(180,150,200,.15);}
+  .brand{font-size:20px; font-weight:800; text-align:center; margin:6px 0 14px; line-height:1.2;}
+  .brand small{display:block; font-size:11px; font-weight:600; color:#a98fb5;}
+  .nav-btn{display:flex; align-items:center; gap:10px; padding:12px 12px; border:none; background:transparent; border-radius:16px; font-size:15px; font-weight:700; color:var(--ink); cursor:pointer; text-align:left; min-height:44px;}
+  .nav-btn .ic{font-size:20px;}
+  .nav-btn.active{background:linear-gradient(135deg,var(--pink),var(--purple)); color:#fff; box-shadow:0 6px 14px rgba(216,140,200,.4);}
+  .nav-btn:active{transform:scale(.97);}
+  .nav-spacer{flex:1;}
+  .nav-foot{font-size:12px; color:#b3a1bd; text-align:center; padding-top:8px; border-top:1px dashed #e7dcec;}
+  .main{margin-left:210px; padding:18px 20px 40px; max-width:1100px;}
+  .topbar{display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;}
+  .topbar h1{font-size:22px; margin:0; flex:1; min-width:160px;}
+  .stars-pill{background:linear-gradient(135deg,var(--yellow),var(--yellow-d)); color:#7a5b00; font-weight:800; padding:8px 16px; border-radius:999px; box-shadow:0 4px 10px rgba(255,210,63,.4); font-size:16px;}
+  .mode-pill{background:linear-gradient(135deg,var(--blue),var(--green)); color:#0a5; font-weight:800; padding:8px 14px; border-radius:999px; font-size:14px; cursor:pointer; border:none; min-height:44px;}
+  .card{background:var(--card); border-radius:22px; padding:18px; margin-bottom:16px; box-shadow:0 8px 22px rgba(180,150,200,.14);}
+  .card h2{margin:0 0 14px; font-size:18px; display:flex; align-items:center; gap:8px;}
+  .card h2 .tag{font-size:12px; font-weight:700; color:#fff; background:var(--purple-d); padding:3px 10px; border-radius:999px;}
+  .btn{border:none; border-radius:16px; padding:12px 18px; font-size:16px; font-weight:800; color:#fff; cursor:pointer; background:linear-gradient(135deg,var(--pink-d),var(--purple-d)); box-shadow:0 6px 14px rgba(216,140,200,.35); min-height:44px;}
+  .btn:active{transform:scale(.97);}
+  .btn.blue{background:linear-gradient(135deg,var(--blue-d),var(--green-d)); box-shadow:0 6px 14px rgba(111,195,255,.35);}
+  .btn.yellow{background:linear-gradient(135deg,var(--yellow),var(--yellow-d)); color:#7a5b00; box-shadow:0 6px 14px rgba(255,210,63,.4);}
+  .btn.green{background:linear-gradient(135deg,var(--green-d),#5fd6a0); }
+  .btn.sm{padding:8px 12px; font-size:14px; min-height:40px;}
+  .btn.ghost{background:#f3edf7; color:var(--ink); box-shadow:none;}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  label.fld{display:block; font-size:13px; font-weight:700; margin:10px 0 4px; color:#8a7794;}
+  input,select,textarea{width:100%; padding:12px 14px; font-size:16px; border:2px solid #efe6f3; border-radius:14px; background:#fff; color:var(--ink); outline:none; min-height:44px; font-family:inherit;}
+  input:focus,select:focus,textarea:focus{border-color:var(--purple);}
+  .row{display:flex; gap:10px; flex-wrap:wrap;}
+  .row>div{flex:1; min-width:120px;}
+  .task{display:flex; align-items:center; gap:12px; padding:14px; border-radius:18px; background:#fbf6ff; margin-bottom:10px;}
+  .task .tic{font-size:26px; width:42px; text-align:center;}
+  .task .tinfo{flex:1;}
+  .task .tname{font-weight:800; font-size:16px;}
+  .task .tprog{font-size:13px; color:#9a87a5;}
+  .task .tstate{font-size:22px;}
+  .task.done{background:linear-gradient(135deg,#eafff3,#e7fbff);}
+  .item{display:flex; align-items:center; gap:12px; padding:12px; border-radius:16px; background:#fbf6ff; margin-bottom:8px;}
+  .item .ic{font-size:24px;}
+  .item .body{flex:1; min-width:0;}
+  .item .tt{font-weight:700;}
+  .item .sub{font-size:13px; color:#9a87a5;}
+  .item img.cover{width:46px; height:46px; object-fit:cover; border-radius:10px;}
+  .check{width:30px; height:30px; border-radius:50%; border:3px solid var(--green-d); display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; flex:none; background:#fff;}
+  .check.on{background:var(--green-d); color:#fff; border-color:var(--green-d);}
+  .del{background:#ffe3ee; color:#e0558a; border:none; border-radius:12px; padding:8px 10px; font-weight:800; cursor:pointer; min-height:40px;}
+  .badges{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  .badge{text-align:center; padding:12px 6px; border-radius:18px; background:#f6f0fb; border:2px solid #efe6f3;}
+  .badge.got{background:linear-gradient(135deg,var(--yellow),var(--pink)); border-color:#ffd23f; box-shadow:0 6px 14px rgba(255,210,63,.35);}
+  .badge .bi{font-size:30px; filter:grayscale(1); opacity:.4;}
+  .badge.got .bi{filter:none; opacity:1;}
+  .badge .bn{font-size:12px; font-weight:700; margin-top:4px;}
+  .badge .bd{font-size:10px; color:#a08fb0;}
+  .sudoku-wrap{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; text-align:center;}
+  .sudoku{display:grid; gap:3px; background:#d9c7e6; padding:4px; border-radius:12px; width:max-content; margin:10px auto;}
+  .sudoku.very9{grid-template-columns:repeat(9,38px);}
+  .sudoku.very6{grid-template-columns:repeat(6,46px);}
+  .scell{width:38px; height:38px; padding:0; line-height:38px; text-align:center; font-size:18px; font-weight:800; border:none; border-radius:6px; background:#fff; color:var(--ink);}
+  .sudoku.very6 .scell{width:46px; height:46px; line-height:46px; font-size:20px;}
+  .scell.given{background:#f0e6f7; color:#7a5b9e; cursor:default;}
+  .scell.wrong{background:#ffd9e3; color:#e0558a;}
+  .sb-border-r{border-right:3px solid #b98cff !important;}
+  .sb-border-b{border-bottom:3px solid #b98cff !important;}
+  .reward{display:flex; align-items:center; gap:14px; padding:16px; border-radius:18px; background:#fbf6ff; margin-bottom:12px;}
+  .reward .ri{font-size:38px;}
+  .reward .rbody{flex:1;}
+  .reward .rname{font-weight:800; font-size:16px;}
+  .reward .rcost{font-size:13px; color:#9a87a5;}
+  .reward .rlim{font-size:12px; color:var(--purple-d); font-weight:700;}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px;}
+  .stat{background:#fbf6ff; border-radius:16px; padding:14px; text-align:center;}
+  .stat .sv{font-size:22px; font-weight:800;}
+  .stat .sl{font-size:12px; color:#9a87a5; margin-top:2px;}
+  .range-btns{display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;}
+  .range-btns .btn.ghost.active{background:linear-gradient(135deg,var(--blue),var(--green)); color:#fff;}
+  .feed{list-style:none; padding:0; margin:0; max-height:360px; overflow:auto;}
+  .feed li{display:flex; gap:10px; align-items:center; padding:10px; border-bottom:1px dashed #eee;}
+  .feed .fi{font-size:20px;}
+  .feed .ft{flex:1; font-size:14px;}
+  .feed .fs{font-weight:800; font-size:14px;}
+  .feed .fs.neg{color:#e0558a;}
+  .mask{position:fixed; inset:0; background:rgba(90,70,100,.45); display:none; align-items:center; justify-content:center; z-index:60; padding:20px;}
+  .mask.show{display:flex;}
+  .modal{background:#fff; border-radius:24px; padding:22px; width:100%; max-width:380px; box-shadow:0 20px 50px rgba(0,0,0,.25);}
+  .modal h3{margin:0 0 14px; text-align:center;}
+  .toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:rgba(90,70,100,.92); color:#fff; padding:12px 22px; border-radius:999px; font-weight:700; z-index:90; opacity:0; transition:.3s; pointer-events:none; max-width:90vw; text-align:center;}
+  .toast.show{opacity:1; bottom:110px;}
+  .hint{font-size:13px; color:#a08fb0; background:#f6f0fb; border-radius:12px; padding:10px 12px; margin-top:10px;}
+  .bottom-nav{display:none;}
+  @media (max-width:768px){
+    .sidebar{display:none;}
+    .main{margin-left:0; padding:14px 14px 96px;}
+    .bottom-nav{display:flex; position:fixed; left:0; right:0; bottom:0; background:rgba(255,255,255,.95); backdrop-filter:blur(10px); box-shadow:0 -4px 18px rgba(180,150,200,.2); z-index:40; overflow-x:auto; padding:6px 4px; padding-bottom:calc(6px + env(safe-area-inset-bottom));}
+    .bottom-nav .nav-btn{flex:none; flex-direction:column; gap:2px; padding:6px 10px; font-size:11px; min-width:58px; border-radius:14px;}
+    .bottom-nav .nav-btn .ic{font-size:20px;}
+    .badges{grid-template-columns:repeat(2,1fr);}
+    .topbar h1{font-size:19px;}
+    .sudoku.very9{grid-template-columns:repeat(9,34px);}
+    .sudoku.very9 .scell{width:34px; height:34px; line-height:34px; font-size:16px;}
+  }
+  /* ===== 成就墙 / 勋章 / 头像 ===== */
+  .achieve{background:linear-gradient(135deg,#fff7fb,#f3f8ff);}
+  .ach-head{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .ava-wrap{position:relative; width:84px; height:84px; flex:none;}
+  .ava-wrap img, .av-default{width:84px; height:84px; border-radius:50%; object-fit:cover; border:4px solid #fff; box-shadow:0 6px 16px rgba(216,140,200,.4); background:linear-gradient(135deg,var(--pink),var(--purple)); display:flex; align-items:center; justify-content:center; font-size:40px; overflow:hidden;}
+  .ava-edit{position:absolute; right:-4px; bottom:-4px; border-radius:50%; width:34px; height:34px; padding:0; min-height:34px; font-size:16px;}
+  .ach-title{flex:1; min-width:140px;}
+  .ach-name{font-size:20px; font-weight:800;}
+  .ach-sub{font-size:14px; color:#a08fb0; margin-top:2px;}
+  .ach-toys{font-size:22px; letter-spacing:2px; width:100%; text-align:right;}
+  .medals{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:16px;}
+  .medal{text-align:center;}
+  .medal-svg{display:block; margin:0 auto; filter:grayscale(1) opacity(.5);}
+  .medal.got .medal-svg{filter:none;}
+  .medal-name{font-size:12px; font-weight:700; margin-top:2px; color:#8a7794;}
+  .medal.got .medal-name{color:var(--ink);}
+  .mini-bar{height:7px; background:#eee; border-radius:99px; margin-top:6px; overflow:hidden;}
+  .mini-bar>div{height:100%; background:linear-gradient(135deg,var(--green-d),var(--blue-d)); border-radius:99px; transition:width .3s;}
+  @media(max-width:768px){.medals{grid-template-columns:repeat(2,1fr);} }
+  /* ===== 音乐乐园周计划 ===== */
+  .weekplan{display:flex; gap:8px; overflow-x:auto; padding-bottom:6px;}
+  .daychip{flex:none; min-width:78px; background:#fff; border:2px solid #efe6f3; border-radius:14px; padding:10px 8px; text-align:center;}
+  .daychip.today{background:linear-gradient(135deg,var(--blue),var(--green)); border-color:var(--green-d); color:#0a5; box-shadow:0 6px 14px rgba(111,195,255,.35);}
+  .daychip .dc-d{font-size:12px; font-weight:800;}
+  .daychip .dc-t{font-size:11px; color:#9a87a5; margin-top:4px; line-height:1.35;}
+  .daychip.today .dc-t{color:#0a5;}
+  /* ===== 勋章点亮条件 ===== */
+  .medal-cond{font-size:10px; color:#a899b0; margin-top:3px; line-height:1.3; padding:0 2px;}
+  .medal.got .medal-cond{color:var(--purple-d);}
+  /* ===== 宠物乐园 ===== */
+  .pet-card{background:#fff; border:2px solid #f0e6f4; border-radius:18px; padding:14px; margin-bottom:12px; text-align:center;}
+  .pet-card .pet-hero{font-size:60px;}
+  .pet-opts-title{margin:14px 0 6px; font-size:14px; font-weight:800; color:#8a7794;}
+  .pet-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px;}
+  .pet-opt{background:#fff; border:2px solid #f0e6f4; border-radius:16px; padding:12px 6px; text-align:center; cursor:pointer; transition:.15s;}
+  .pet-opt:active{transform:scale(.96);}
+  .pet-emoji{font-size:34px; line-height:1;}
+  .pet-nm{font-size:13px; font-weight:800; margin-top:4px; color:#7a6790;}
+  .pet-hero{font-size:64px; text-align:center; line-height:1.1; margin:6px 0;}
+  .pet-lv{text-align:center; font-size:13px; font-weight:700; color:#7a6790; margin-bottom:4px;}
+  @media(max-width:768px){.pet-grid{grid-template-columns:repeat(3,1fr);} }
+</style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">🌈 早安学习乐园<small>小朋友的成长小天地</small></div>
+    <div id="navSide"></div>
+    <div class="nav-spacer"></div>
+    <button class="nav-btn" data-act="dataMgmt" style="justify-content:center;background:#f3edf7;">💾 数据管理</button>
+    <div class="nav-foot" id="footInfo"></div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <h1 id="pageTitle">🌞 早安乐园</h1>
+      <div class="stars-pill" id="starPill">⭐ 0</div>
+      <button class="mode-pill" id="modeBtn">👶 孩子模式</button>
+    </div>
+    <div id="view"></div>
+  </main>
+  <nav class="bottom-nav" id="navBottom"></nav>
+  <div class="mask" id="mask"><div class="modal" id="modal"></div></div>
+  <div class="toast" id="toast"></div>
+  <input id="avatarFile" type="file" accept="image/*" style="display:none"/>
+
+<script>
+/* ============ 数据层 ============ */
+const KEY='zaoting_v2';
+const NAV=[
+  {id:'home',name:'早安乐园',icon:'🌞'},
+  {id:'homework',name:'校内作业',icon:'📝'},
+  {id:'reading',name:'阅读乐园',icon:'📚'},
+  {id:'math',name:'计算乐园',icon:'➗'},
+  {id:'exercise',name:'运动乐园',icon:'🏃'},
+  {id:'music',name:'音乐乐园',icon:'🎵'},
+  {id:'english',name:'英语乐园',icon:'🔤'},
+  {id:'store',name:'奖励商城',icon:'🎁'},
+  {id:'stats',name:'汇总分析',icon:'📊'},
+];
+const DEFAULT={
+  stars:0, starsEarned:0, badges:{},
+  homework:[], reading:[], exercise:[], music:[],
+  quizLog:[], sudokuLog:[],
+  plan:[], practiceLog:[],
+  rewards:{history:[]},
+  pets:[],
+  english:[],
+  activity:[],
+  sudokuDaily:{date:'',count:0}, quizDaily:{date:'',count:0},
+  pass:{parent:'',child:''}, mode:'child',
+  readGoal:20, musicGoal:30, avatar:'',
+  sync:{enabled:false, provider:'gist', token:'', gistId:'', customUrl:'', auto:true, lastSync:null},
+};
+const YARA_PHOTO='data:image/jpeg;base64,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';
+let DB=load();
+function load(){ try{const d=JSON.parse(localStorage.getItem(KEY)); if(d){const db=Object.assign({},DEFAULT,d);
+  if(d.pet && d.pet.type && !(db.pets&&db.pets.length)){db.pets=[{id:uid(),type:d.pet.type,level:d.pet.level||1,exp:d.pet.exp||0,house:d.pet.house||1}];}
+  if(!db.pets)db.pets=[]; if(!db.english)db.english=[];
+  db.sync=Object.assign({},DEFAULT.sync, d.sync||{});
+  return db;}}catch(e){} return JSON.parse(JSON.stringify(DEFAULT)); }
+function saveLocal(){ try{localStorage.setItem(KEY, JSON.stringify(DB));}catch(e){toast('⚠️ 浏览器存储空间不足，录音/照片可能过大，请删减一些记录');} }
+function save(){ saveLocal(); scheduleSyncPush(); }
+
+/* ============ 工具 ============ */
+function $(s,r){return (r||document).querySelector(s);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function today(){return ymd(new Date());}
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function ym(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function parseD(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+let toastTimer;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1800);}
+function addActivity(date,module,detail,stars){DB.activity.push({ts:Date.now(),date,module,detail,stars});}
+function addStars(n,module,detail){ DB.stars+=n; DB.starsEarned+=n; addActivity(today(),module,detail,n); checkBadges(); save(); }
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+/* ============ 徽章 ============ */
+const COLORS={pink:['#FF8FC4','#FFD6E8'],blue:['#6FC3FF','#CDEBFF'],yellow:['#FFD23F','#FFF0B0'],green:['#7FDDB0','#CFF3E2'],purple:['#B98CFF','#E6D6FF'],gold:['#FFC93C','#FFE9A8']};
+const BADGES=[
+  {id:'hw',icon:'📝',name:'作业小能手',desc:'完成 10 次校内作业',c:'pink',test:()=>DB.homework.filter(h=>h.done).length>=10},
+  {id:'book',icon:'📚',name:'阅读小书虫',desc:'累计读满 10 本书',c:'blue',test:()=>DB.reading.length>=10},
+  {id:'math',icon:'➗',name:'计算小达人',desc:'完成 5 次数独或算术',c:'yellow',test:()=>DB.sudokuLog.length+DB.quizLog.length>=5},
+  {id:'sport',icon:'⚽',name:'运动小健将',desc:'运动打卡 10 次',c:'green',test:()=>DB.exercise.length>=10},
+  {id:'music',icon:'🎻',name:'音乐小演奏家',desc:'练琴打卡 5 次',c:'purple',test:()=>DB.music.length>=5},
+  {id:'star',icon:'⭐',name:'星星收集者',desc:'累计获得 100 颗星星',c:'gold',test:()=>DB.starsEarned>=100},
+  {id:'full',icon:'🏅',name:'全勤小标兵',desc:'3 天集齐全部每日任务',c:'purple',test:()=>fullDays()>=3},
+  {id:'gift',icon:'🎁',name:'兑换小达人',desc:'兑换奖励 3 次',c:'pink',test:()=>DB.rewards.history.length>=3},
+];
+function dayStatus(d){
+  const hwPending=DB.homework.filter(h=>!h.done && h.due<=d).length;
+  const readPages=DB.reading.filter(r=>r.date===d).reduce((s,r)=>s+r.pages,0);
+  const exCount=DB.exercise.filter(e=>e.date===d).length;
+  const musicMin=DB.music.filter(m=>m.date===d).reduce((s,m)=>s+m.minutes,0);
+  const enRead=DB.english.filter(x=>x.type==='read'&&x.date===d).reduce((s,x)=>s+x.minutes,0);
+  const enWrite=DB.english.filter(x=>x.type==='write'&&x.date===d).reduce((s,x)=>s+x.minutes,0);
+  return {homework:hwPending===0, reading:readPages>=DB.readGoal, exercise:exCount>=1, music:musicMin>=DB.musicGoal, reading_en:enRead>=10, writing_en:enWrite>=10};
+}
+function fullDays(){
+  const set=new Set();
+  DB.homework.forEach(h=>{if(h.done&&h.doneDate)set.add(h.doneDate);});
+  DB.reading.forEach(r=>set.add(r.date));
+  DB.exercise.forEach(e=>set.add(e.date));
+  DB.music.forEach(m=>set.add(m.date));
+  DB.english.forEach(x=>set.add(x.date));
+  let n=0; set.forEach(d=>{const s=dayStatus(d); if(s.homework&&s.reading&&s.exercise&&s.music&&s.reading_en&&s.writing_en)n++;});
+  return n;
+}
+function checkBadges(){ BADGES.forEach(b=>{ if(b.test() && !DB.badges[b.id]){DB.badges[b.id]=true; toast('🎉 解锁徽章：'+b.name);} }); }
+
+/* ============ 导航 ============ */
+let cur='home';
+function renderNav(){
+  const side=$('#navSide'), bot=$('#navBottom');
+  const mk=(n)=>`<button class="nav-btn ${n.id===cur?'active':''}" data-act="nav" data-id="${n.id}"><span class="ic">${n.icon}</span><span>${n.name}</span></button>`;
+  side.innerHTML=NAV.map(mk).join('');
+  bot.innerHTML=NAV.map(mk).join('');
+  $('#footInfo').innerHTML='数据存在本机 · 不会丢失<br>当前：'+(DB.mode==='parent'?'👨‍👩‍👧 家长模式':'👶 孩子模式');
+  $('#starPill').textContent='⭐ '+DB.stars;
+  $('#modeBtn').textContent=DB.mode==='parent'?'👨‍👩‍👧 家长模式':'👶 孩子模式';
+}
+function showModule(id){
+  cur=id;
+  const n=NAV.find(x=>x.id===id);
+  $('#pageTitle').textContent=n.icon+' '+n.name;
+  renderNav();
+  ({home:renderHome,homework:renderHomework,reading:renderReading,math:renderMath,exercise:renderExercise,music:renderMusic,english:renderEnglish,store:renderStore,stats:renderStats}[id])();
+}
+
+/* ============ 首页 早安乐园 ============ */
+function renderHome(){
+  const d=today(); const s=dayStatus(d);
+  const tasks=[
+    {ic:'📝',name:'校内作业',prog:'完成今天的所有作业',st:s.homework,go:'homework'},
+    {ic:'📚',name:'阅读乐园',prog:'今天至少读 '+DB.readGoal+' 页',st:s.reading,go:'reading'},
+    {ic:'🏃',name:'运动乐园',prog:'今天至少完成 1 项运动',st:s.exercise,go:'exercise'},
+    {ic:'🎵',name:'音乐乐园',prog:'今天至少练琴 '+DB.musicGoal+' 分钟',st:s.music,go:'music'},
+    {ic:'🔤',name:'英语听读',prog:'今天听读 10 分钟并录音',st:s.reading_en,go:'english'},
+    {ic:'✍️',name:'英语书写',prog:'今天书写 10 分钟并拍照',st:s.writing_en,go:'english'},
+  ];
+  const doneCount=tasks.filter(t=>t.st).length;
+  const tpl=tasks.map(t=>`<div class="task ${t.st?'done':''}">
+      <div class="tic">${t.ic}</div>
+      <div class="tinfo"><div class="tname">${t.name}</div><div class="tprog">${t.prog}</div></div>
+      <div class="tstate">${t.st?'✅':'📌'}</div>
+      <button class="btn sm blue" data-act="nav" data-id="${t.go}">去完成</button>
+    </div>`).join('');
+  const ach=renderAchievements();
+  const overdue=DB.homework.filter(h=>!h.done && h.due<d);
+  const od=overdue.length?`<div class="card"><h2>⏰ 今天要处理 <span class="tag">${overdue.length} 项</span></h2>`+
+    overdue.map(h=>`<div class="item"><div class="ic">📌</div><div class="body"><div class="tt">${esc(h.text)}</div><div class="sub">应完成日期：${h.due}</div></div><div class="check" data-act="hwDone" data-id="${h.id}">✓</div></div>`).join('')+`</div>`:'';
+  $('#view').innerHTML=`
+    <div class="card">
+      <h2>🌞 早安，小勇士！<span class="tag">今日任务 ${doneCount}/${tasks.length}</span></h2>
+      ${tpl}
+      <div class="hint">完成全部 ${tasks.length} 项每日任务，就能成为「全勤小标兵」🏅！</div>
+    </div>
+    ${od}
+    ${ach}`;
+}
+function medal(c,icon,got,name,cond){
+  const [d,l]=COLORS[c]||COLORS.pink;
+  return `<div class="medal ${got?'got':''}">
+    <svg class="medal-svg" viewBox="0 0 80 104" width="76" height="99">
+      <path d="M30 46 L21 84 L36 76 L40 92 L44 76 L59 84 L50 46 Z" fill="${got?d:'#d9cfe0'}"/>
+      <circle cx="40" cy="38" r="27" fill="${got?d:'#e7dfee'}" stroke="#fff" stroke-width="3"/>
+      <circle cx="40" cy="38" r="21" fill="${got?l:'#f3eef7'}" stroke="${got?d:'#e0d6e8'}" stroke-width="2"/>
+      <text x="40" y="49" font-size="26" text-anchor="middle">${icon}</text>
+    </svg>
+    <div class="medal-name">${name}</div>
+    <div class="medal-cond">${got?'✅ 已点亮':'🔒 '+cond}</div>
+  </div>`;
+}
+function renderAchievements(){
+  const isParent=DB.mode==='parent';
+  const avSrc=DB.avatar||YARA_PHOTO;
+  const av=`<img src="${avSrc}" alt="Yara"/>`;
+  const avBtn=isParent?`<button class="ava-edit btn sm blue" data-act="setAvatar" title="设置头像">📷</button>`:'';
+  const medals=BADGES.map(b=>medal(b.c,b.icon,!!DB.badges[b.id],b.name,b.desc)).join('');
+  const gotN=BADGES.filter(b=>DB.badges[b.id]).length;
+  return `<div class="card achieve">
+    <div class="ach-head">
+      <div class="ava-wrap">${av}${avBtn}</div>
+      <div class="ach-title">
+        <div class="ach-name">🌟 早安的成就墙</div>
+        <div class="ach-sub">⭐ ${DB.stars} 颗（累计 ${DB.starsEarned}）· 勋章 ${gotN}/${BADGES.length}</div>
+      </div>
+      <div class="ach-toys">🎻 ⚽ 🌈 ✨</div>
+    </div>
+    <div class="medals">${medals}</div>
+    <div class="hint" style="margin-top:12px;">🎻 小提琴 · ⚽ 足球 · 🌈 彩虹糖果色，陪 Yara 一起长大！${isParent?' 点头像右上角 📷 可换 Yara 的照片。':''}</div>
+  </div>`;
+}
+
+/* ============ 校内作业（手动） ============ */
+function renderHomework(){
+  const isParent=DB.mode==='parent';
+  const list=DB.homework.slice().sort((a,b)=> (a.done-b.done) || (a.due>b.due?1:-1));
+  const items=list.length?list.map(h=>{
+    const overdue=!h.done && h.due<today();
+    return `<div class="item" style="${overdue?'background:#fff0f4;':''}">
+      <div class="ic">${overdue?'⏰':'📝'}</div>
+      <div class="body"><div class="tt" style="${h.done?'text-decoration:line-through;color:#b3a1bd;':''}">${esc(h.text)}</div>
+        <div class="sub">${overdue?'⚠️ 已逾期 · ':''}应完成：${h.due}${h.done?' · ✅已完成':''}</div></div>
+      <div class="check ${h.done?'on':''}" data-act="hwDone" data-id="${h.id}">${h.done?'✓':''}</div>
+      ${isParent?`<button class="del" data-act="hwDel" data-id="${h.id}">删</button>`:''}
+    </div>`;
+  }).join(''):`<div class="hint">还没有作业～${isParent?'点击下方添加今天的作业吧':'等爸爸妈妈在家长模式里添加哦'}</div>`;
+  const form=isParent?`<div class="card" style="background:#f3fbff;">
+      <h2>➕ 添加作业（家长）</h2>
+      <label class="fld">应完成日期</label>
+      <input id="hwDue" type="date" value="${today()}" />
+      <label class="fld" style="margin-top:10px;">作业内容（可添加多项）</label>
+      <div id="hwItems"><div class="hw-item" style="display:flex;gap:8px;margin-top:6px;"><input class="hwText" style="flex:1" placeholder="例如：数学练习册第5页"/></div></div>
+      <button class="btn ghost sm" data-act="hwAddItem" style="margin-top:8px;">➕ 再加一项</button>
+      <button class="btn" data-act="hwAdd" style="margin-top:12px;width:100%;">添加作业</button>
+    </div>`:`<div class="hint">📝 作业由爸爸妈妈在「家长模式」里添加，小朋友负责勾选完成就好啦～</div>`;
+  $('#view').innerHTML=`<div class="card"><h2>📝 校内作业</h2>
+      <div class="hint">作业由家长手动添加，小朋友每天勾选完成即可。</div>
+      ${items}</div>${form}`;
+}
+
+/* ============ 阅读乐园 ============ */
+function renderReading(){
+  const list=DB.reading.slice().reverse();
+  const items=list.length?list.map(r=>`<div class="item">
+      ${r.cover?`<img class="cover" src="${r.cover}"/>`:`<div class="ic">📖</div>`}
+      <div class="body"><div class="tt">${esc(r.book)}</div><div class="sub">${r.pages} 页 · ${r.date}</div></div>
+      <button class="del" data-act="rdDel" data-id="${r.id}">删</button>
+    </div>`).join(''):`<div class="hint">还没有阅读记录，记录今天读的书吧～</div>`;
+  $('#view').innerHTML=`<div class="card"><h2>📚 阅读乐园</h2>
+    <label class="fld">书名</label><input id="rdBook" placeholder="例如：米小圈上学记" />
+    <div class="row"><div><label class="fld">今天读了几页</label><input id="rdPages" type="number" min="1" placeholder="20" /></div></div>
+    <label class="fld">封面（可拍照或选相册，选填）</label>
+    <div class="row">
+      <button class="btn blue sm" data-act="rdSnap">📷 拍照</button>
+      <button class="btn yellow sm" data-act="rdPick">🖼 相册</button>
+      <input id="rdFile" type="file" accept="image/*" style="display:none" />
+    </div>
+    <button class="btn" data-act="rdAdd" style="margin-top:12px;width:100%;">✅ 记录阅读</button>
+    <div class="hint">每日任务要求：今天累计读满 ${DB.readGoal} 页哦！</div>
+    <h2 style="margin-top:18px;">📖 阅读记录</h2>${items}</div>`;
+}
+
+/* ============ 英语乐园 ============ */
+function engMin(type){return DB.english.filter(e=>e.type===type&&e.date===today()).reduce((s,e)=>s+e.minutes,0);}
+function engStarToday(type){return DB.english.some(e=>e.type===type&&e.date===today()&&e.awarded);}
+function renderEnglish(){
+  const readMin=engMin('read'), readStar=engStarToday('read');
+  const writeMin=engMin('write'), writeStar=engStarToday('write');
+  const readList=DB.english.filter(e=>e.type==='read').slice().reverse();
+  const readItems=readList.length?readList.map(e=>`<div class="item"><div class="ic">🎧</div>
+    <div class="body"><div class="tt">听读 ${e.minutes} 分钟${e.awarded?' ✅ +⭐1':''}</div>
+      <div class="sub">${e.date}${e.audio?' · 🎙已录音':''}</div>
+      ${e.audio?`<div><audio controls src="${e.audio}" style="height:32px;width:170px;margin-top:4px;"></audio></div>`:''}</div>
+    <button class="del" data-act="engDel" data-id="${e.id}">删</button></div>`).join(''):'<div class="hint">还没有听读记录。</div>';
+  const writeList=DB.english.filter(e=>e.type==='write').slice().reverse();
+  const writeItems=writeList.length?writeList.map(e=>`<div class="item">${e.cover?`<img class="cover" src="${e.cover}"/>`:`<div class="ic">✍️</div>`}
+    <div class="body"><div class="tt">书写 ${e.minutes} 分钟${e.awarded?' ✅ +⭐1':''}</div><div class="sub">${e.date}${e.cover?' · 📷已拍照':''}</div></div>
+    <button class="del" data-act="engDel" data-id="${e.id}">删</button></div>`).join(''):'<div class="hint">还没有书写记录。</div>';
+  $('#view').innerHTML=`<div class="card"><h2>🔤 英语乐园 · 听读</h2>
+    <div class="hint">每天听读满 10 分钟，并上传一段录音，就能获得 ⭐1（每天 1 次）。今天已听读 ${readMin} 分钟${readStar?' · 已得星 ✅':''}。</div>
+    <label class="fld">今天听读了几分钟</label><input id="enReadMin" type="number" min="1" placeholder="10"/>
+    <div class="row">
+      <button class="btn blue sm" data-act="enRec">🎙 录音</button>
+      <button class="btn yellow sm" data-act="enRecFile">📁 选录音</button>
+      <input id="enAudioFile" type="file" accept="audio/*" style="display:none"/>
+    </div>
+    <div id="enRecState" class="hint"></div>
+    <button class="btn" data-act="enReadAdd" style="margin-top:10px;width:100%;">✅ 记录听读</button>
+    <h2 style="margin-top:16px;">🎧 听读记录</h2>${readItems}</div>
+    <div class="card"><h2>✍️ 英语乐园 · 书写</h2>
+    <div class="hint">每天书写满 10 分钟，并拍一张书写内容的照片，就能获得 ⭐1（每天 1 次）。今天已书写 ${writeMin} 分钟${writeStar?' · 已得星 ✅':''}。</div>
+    <label class="fld">今天书写了几分钟</label><input id="enWriteMin" type="number" min="1" placeholder="10"/>
+    <div class="row">
+      <button class="btn blue sm" data-act="enSnap">📷 拍照</button>
+      <button class="btn yellow sm" data-act="enPick">🖼 相册</button>
+      <input id="enImgFile" type="file" accept="image/*" style="display:none"/>
+    </div>
+    <button class="btn" data-act="enWriteAdd" style="margin-top:10px;width:100%;">✅ 记录书写</button>
+    <h2 style="margin-top:16px;">🖼 书写记录</h2>${writeItems}</div>`;
+}
+let engRec=null;
+function enRecToggle(){
+  if(engRec && engRec.recorder && engRec.recorder.state==='recording'){engRec.recorder.stop();return;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('本设备不支持直接录音，请用「选录音」上传');return;}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    const rec=new MediaRecorder(stream);const chunks=[];
+    rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+    rec.onstop=()=>{stream.getTracks().forEach(t=>t.stop());const blob=new Blob(chunks,{type:rec.mimeType||'audio/webm'});const fr=new FileReader();
+      fr.onload=()=>{const btn=document.querySelector('[data-act="enRec"]');if(btn)btn._audio=fr.result;const st=$('#enRecState');if(st)st.textContent='🎙 已录好一段录音，可以记录啦！';const b2=document.querySelector('[data-act="enRec"]');if(b2)b2.textContent='🎙 录音';toast('录音完成');};
+      fr.readAsDataURL(blob);};
+    rec.start();engRec={recorder:rec,chunks};
+    const btn=document.querySelector('[data-act="enRec"]');if(btn)btn.textContent='⏹ 停止录音';
+  }).catch(err=>{toast('无法使用麦克风，请用「选录音」上传');});
+}
+function enReadAdd(){
+  const mn=parseInt($('#enReadMin').value,10);if(!mn){toast('填写听读分钟数');return;}
+  const btn=document.querySelector('[data-act="enRec"]');const audio=(btn&&btn._audio)||null;
+  if(!audio){toast('请先录音，或点「选录音」上传哦');return;}
+  let awarded=false;
+  if(mn>=10 && !engStarToday('read')){addStars(1,'英语乐园·听读','听读'+mn+'分钟');awarded=true;}
+  DB.english.push({id:uid(),type:'read',minutes:mn,date:today(),ts:Date.now(),audio,awarded,cover:null});
+  if(btn)btn._audio=null; const st=$('#enRecState'); if(st)st.textContent='';
+  save();renderNav();renderEnglish();
+  toast(awarded?'听读完成 +⭐1 🔤':(mn>=10?'已记录（今天听读星已得）':'已记录听读（满10分钟得星）'));
+}
+function enWriteAdd(){
+  const mn=parseInt($('#enWriteMin').value,10);if(!mn){toast('填写书写分钟数');return;}
+  const btn=document.querySelector('[data-act="enWriteAdd"]');const cover=(btn&&btn._cover)||null;
+  if(!cover){toast('请先拍照，或点「相册」选照片哦');return;}
+  let awarded=false;
+  if(mn>=10 && !engStarToday('write')){addStars(1,'英语乐园·书写','书写'+mn+'分钟');awarded=true;}
+  DB.english.push({id:uid(),type:'write',minutes:mn,date:today(),ts:Date.now(),audio:null,cover,awarded});
+  if(btn)btn._cover=null;
+  save();renderNav();renderEnglish();
+  toast(awarded?'书写完成 +⭐1 ✍️':(mn>=10?'已记录（今天书写星已得）':'已记录书写（满10分钟得星）'));
+}
+
+/* ============ 计算乐园 ============ */
+let quiz=null, sudoku=null;
+function renderMath(){
+  $('#view').innerHTML=`<div class="card"><h2>➗ 算术闯关（100以内）</h2>
+    <div id="quizBox">
+      <div class="hint">随机 10 道题（加、减、乘、除），答对 8 题以上得 ⭐2；若 1 分钟内全部答对，额外 +⭐1！每天最多玩 3 次。</div>
+      <button class="btn" data-act="quizStart" style="margin-top:12px;width:100%;">🎯 开始挑战</button>
+    </div></div>
+    <div class="card"><h2>🔢 数独小游戏</h2>
+      <div class="row">
+        <button class="btn green" data-act="sudokuNew" data-size="6">6×6 简单（⭐1）</button>
+        <button class="btn" data-act="sudokuNew" data-size="9">9×9 困难（⭐2）</button>
+      </div>
+      <div class="hint">⏱️ 简单 1 分钟内完成 → 共 ⭐2；困难 2 分钟内完成 → 共 ⭐3。两种模式每天合计最多玩 3 次哦！</div>
+      <div id="sudokuBox" style="margin-top:12px;"></div>
+    </div>`;
+}
+function quizStart(){
+  const dk=quizDailyKey();
+  if(dk.count>=3){toast('今天算术已经玩了 3 次啦，明天再来～');return;}
+  dk.count++; save();
+  quiz={probs:[],idx:0,correct:0,start:Date.now()};
+  const ops=['+','-','×','÷'];
+  for(let i=0;i<10;i++){
+    const op=ops[Math.floor(Math.random()*4)]; let a,b,res;
+    if(op==='+'){a=rnd(1,99);b=rnd(1,99-a);res=a+b;}
+    else if(op==='-'){a=rnd(1,99);b=rnd(1,a);res=a-b;}
+    else if(op==='×'){a=rnd(2,9);b=rnd(2,9);res=a*b;}
+    else{a=rnd(2,9);b=rnd(2,9);res=a*b;a=res;}
+    quiz.probs.push({a,b,op,res});
+  }
+  quizRender();
+}
+function quizRender(){
+  const p=quiz.probs[quiz.idx];
+  $('#quizBox').innerHTML=`<div style="font-size:15px;font-weight:700;margin-bottom:8px;">第 ${quiz.idx+1} / 10 题　✅已对：${quiz.correct}</div>
+    <div style="font-size:30px;font-weight:800;text-align:center;margin:14px 0;">${p.a} ${p.op} ${p.b} = ?</div>
+    <input id="qAns" type="number" inputmode="numeric" placeholder="输入答案" style="font-size:22px;text-align:center;" />
+    <button class="btn" data-act="quizSubmit" style="margin-top:12px;width:100%;">下一题 ➡️</button>`;
+  setTimeout(()=>{const e=$('#qAns'); if(e)e.focus();},50);
+}
+function quizSubmit(){
+  const p=quiz.probs[quiz.idx];
+  const v=parseInt($('#qAns').value,10);
+  if(isNaN(v)){toast('请先写答案哦');return;}
+  if(v===p.res)quiz.correct++;
+  quiz.idx++;
+  if(quiz.idx<10){quizRender();}
+  else{
+    const elapsed=(Date.now()-quiz.start)/1000;
+    let star=quiz.correct>=8?2:0;
+    const bonus=star>0 && quiz.correct===10 && elapsed<=60;
+    if(bonus)star+=1;
+    if(star>0)addStars(star,'计算乐园·算术','答对'+quiz.correct+'/10'+(bonus?'（限时全对+⭐1）':''));
+    DB.quizLog.push({ts:Date.now(),date:today(),problems:10,correct:quiz.correct,stars:star});
+    save(); renderNav();
+    const got=star>0; const left=quizDailyKey().count;
+    $('#quizBox').innerHTML=`<div style="text-align:center;padding:10px;">
+      <div style="font-size:46px;">${got?'🎉':'💪'}</div>
+      <div style="font-size:18px;font-weight:800;margin:8px 0;">答对 ${quiz.correct} / 10 题${bonus?' · ⏱️限时全对 +⭐1':''}</div>
+      <div>${got?('获得 ⭐'+star+(left>=3?'（今天算术已玩满 3 次）':'')):'再接再厉，答对 8 题以上就能得 ⭐2 哦'}</div>
+      <button class="btn" data-act="quizStart" style="margin-top:14px;width:100%;">🔄 再来一局（今天剩 ${3-left} 次）</button></div>`;
+  }
+}
+
+/* ---- 数独生成 ---- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function genFull(n,br,bc){
+  const g=Array.from({length:n},()=>Array(n).fill(0));
+  function ok(r,c,v){for(let i=0;i<n;i++){if(g[r][i]===v||g[i][c]===v)return false;}const r0=Math.floor(r/br)*br,c0=Math.floor(c/bc)*bc;for(let i=0;i<br;i++)for(let j=0;j<bc;j++)if(g[r0+i][c0+j]===v)return false;return true;}
+  function fill(pos){if(pos===n*n)return true;const r=Math.floor(pos/n),c=pos%n;for(const v of shuffle([...Array(n).keys()].map(x=>x+1))){if(ok(r,c,v)){g[r][c]=v;if(fill(pos+1))return true;g[r][c]=0;}}return false;}
+  fill(0);return g;
+}
+function countSol(grid,n,br,bc,limit){
+  let cnt=0;
+  function solve(){if(cnt>=limit)return;let r=-1,c=-1;outer:for(let i=0;i<n;i++)for(let j=0;j<n;j++){if(grid[i][j]===0){r=i;c=j;break outer;}}
+    if(r===-1){cnt++;return;}
+    for(let v=1;v<=n;v++){let ok=true;for(let i=0;i<n;i++){if(grid[r][i]===v||grid[i][c]===v){ok=false;break;}}
+      if(ok){const r0=Math.floor(r/br)*br,c0=Math.floor(c/bc)*bc;for(let i=0;i<br;i++)for(let j=0;j<bc;j++)if(grid[r0+i][c0+j]===v){ok=false;break;}}
+      if(ok){grid[r][c]=v;solve();grid[r][c]=0;if(cnt>=limit)return;}}}
+  solve();return cnt;
+}
+function makePuzzle(n,br,bc,holes){
+  const sol=genFull(n,br,bc);const p=sol.map(r=>r.slice());
+  for(const idx of shuffle([...Array(n*n).keys()])){if(holes<=0)break;const r=Math.floor(idx/n),c=idx%n;if(p[r][c]===0)continue;const bak=p[r][c];p[r][c]=0;if(countSol(p.map(x=>x.slice()),n,br,bc,2)!==1)p[r][c]=bak;else holes--;}
+  return {solution:sol,puzzle:p};
+}
+function sudokuDailyKey(){ if(!DB.sudokuDaily||DB.sudokuDaily.date!==today()){DB.sudokuDaily={date:today(),count:0};} return DB.sudokuDaily; }
+function quizDailyKey(){ if(!DB.quizDaily||DB.quizDaily.date!==today()){DB.quizDaily={date:today(),count:0};} return DB.quizDaily; }
+function sudokuNew(size){
+  const dk=sudokuDailyKey();
+  if(dk.count>=3){toast('今天数独已经玩了 3 次啦，明天再来～');return;}
+  dk.count++; save();
+  const n=+size; const br=n===6?2:3, bc=3; const holes=n===6?14:46;
+  sudoku={n,br,bc,start:Date.now(),data:makePuzzle(n,br,bc,holes)};
+  renderSudoku();
+}
+function renderSudoku(){
+  const {n,br,bc,data}=sudoku;const {puzzle,solution}=data;
+  let html=`<div class="sudoku-wrap"><div class="sudoku very${n}" id="sGrid">`;
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+    const v=puzzle[r][c];const given=v!==0;
+    const cls=['scell'];if(given)cls.push('given');if((c+1)%bc===0&&c<n-1)cls.push('sb-border-r');if((r+1)%br===0&&r<n-1)cls.push('sb-border-b');
+    html+=`<input class="${cls.join(' ')}" data-r="${r}" data-c="${c}" value="${v?v:''}" ${given?'readonly':''} inputmode="numeric" maxlength="1"/>`;
+  }
+  html+=`</div></div>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn green sm" data-act="sudokuCheck">✅ 检查 / 完成</button>
+      <button class="btn ghost sm" data-act="sudokuNew" data-size="${n}">🔄 换一题</button>
+    </div>
+    <div class="hint">完成 ${n}×${n} 数独可得 ⭐${n===6?1:2}！${n===6?'简单':'困难'}</div>`;
+  $('#sudokuBox').innerHTML=html;
+}
+function sudokuCheck(){
+  const {n,data}=sudoku;const solution=data.solution;const grid=$('#sGrid');
+  let filled=true,allRight=true;
+  grid.querySelectorAll('.scell').forEach(inp=>{
+    const r=+inp.dataset.r,c=+inp.dataset.c;const v=parseInt(inp.value,10);
+    if(isNaN(v)){filled=false;inp.classList.remove('wrong');return;}
+    if(v!==solution[r][c]){inp.classList.add('wrong');allRight=false;}else{inp.classList.remove('wrong');}
+  });
+  if(!filled){toast('还有空格没填哦');return;}
+  if(allRight){
+    const elapsed=(Date.now()-sudoku.start)/1000;
+    const limit=n===6?60:120;
+    let star=n===6?1:2;
+    const fast=elapsed<=limit;
+    if(fast)star+=1;
+    addStars(star,'数独'+n+'×'+n,'完成'+n+'×'+n+'数独');
+    DB.sudokuLog.push({ts:Date.now(),date:today(),size:n,stars:star});save();
+    renderNav();
+    const left=sudokuDailyKey().count;
+    $('#sudokuBox').innerHTML=`<div style="text-align:center;padding:10px;">
+      <div style="font-size:46px;">🎉</div>
+      <div style="font-size:18px;font-weight:800;margin:8px 0;">${n}×${n} 数独完成！用时 ${elapsed.toFixed(0)} 秒${fast?' · ⏱️限时奖励 +⭐1':''}</div>
+      <div>获得 ⭐${star}${left>=3?'（今天数独已玩满 3 次）':''}</div>
+      <button class="btn green" data-act="sudokuNew" data-size="${n}" style="margin-top:14px;width:100%;">🔄 再来一局（今天剩 ${3-left} 次）</button></div>`;
+  }else{toast('有些格子不对，再看看～');}
+}
+
+/* ============ 运动乐园 ============ */
+function renderExercise(){
+  const list=DB.exercise.slice().reverse();
+  const items=list.length?list.map(e=>`<div class="item"><div class="ic">🏃</div>
+    <div class="body"><div class="tt">${e.type}</div><div class="sub">${e.minutes} 分钟 · ${e.date} · +⭐1</div></div>
+    <button class="del" data-act="exDel" data-id="${e.id}">删</button></div>`).join(''):`<div class="hint">还没有运动打卡，去动一动吧～</div>`;
+  $('#view').innerHTML=`<div class="card"><h2>🏃 运动乐园</h2>
+    <div class="row">
+      <div><label class="fld">运动类型</label><select id="exType">
+        <option>跳绳</option><option>跑步</option><option>游泳</option><option>足球</option><option>骑行</option><option>其他</option>
+      </select></div>
+      <div><label class="fld">时长（分钟）</label><input id="exMin" type="number" min="1" placeholder="20"/></div>
+    </div>
+    <button class="btn green" data-act="exAdd" style="margin-top:12px;width:100%;">✅ 打卡（+⭐1）</button>
+    <div class="hint">每日任务要求：今天至少完成 1 项运动。</div>
+    <h2 style="margin-top:18px;">🏅 运动记录</h2>${items}</div>`;
+}
+
+/* ============ 音乐乐园（含本周曲目单） ============ */
+function requiredForSong(name){ return DB.plan.filter(t=>t.song===name && t.date<=today()).reduce((s,t)=>s+t.need,0); }
+function doneForSong(name){ return DB.practiceLog.filter(p=>p.song===name && p.date<=today()).length; }
+function outstanding(name){ return Math.max(0, requiredForSong(name)-doneForSong(name)); }
+function practiceTodayCount(name){ return DB.practiceLog.filter(p=>p.song===name && p.date===today()).length; }
+function practiceOn(name,ds){ return DB.practiceLog.filter(p=>p.song===name && p.date===ds).length; }
+function renderMusic(){
+  const isParent=DB.mode==='parent';
+  const names=[...new Set(DB.plan.filter(t=>t.date<=today()).map(t=>t.song))];
+  const todayList=names.length?names.map(name=>{
+    const out=outstanding(name); const td=practiceTodayCount(name); const done=out===0;
+    const pct=Math.min(100,Math.round(doneForSong(name)/Math.max(1,requiredForSong(name))*100));
+    return `<div class="item" style="${done?'background:#eafff3;':''}">
+      <div class="ic">${done?'🏆':'🎻'}</div>
+      <div class="body"><div class="tt">${esc(name)} ${done?'✅':''}</div>
+        <div class="sub">${done?'累计已练完 🎉':('今天还需练 '+out+' 次（今日已练 '+td+'）')}</div>
+        <div class="mini-bar"><div style="width:${pct}%;"></div></div></div>
+      ${done?'':`<button class="btn sm green" data-act="practice" data-song="${esc(name)}">练习完成</button>`}
+      ${practiceTodayCount(name)>0?`<button class="btn sm ghost" data-act="practiceUndo" data-song="${esc(name)}">↩ 撤销一次</button>`:''}
+      ${isParent?`<button class="del" data-act="planDel" data-song="${esc(name)}">删</button>`:''}
+    </div>`;
+  }).join(''):`<div class="hint">还没有练习任务，先在下方添加未来一周每天的曲目吧～</div>`;
+  let week='';
+  for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);const ds=ymd(d);
+    const tasks=DB.plan.filter(t=>t.date===ds);
+    const chipTasks=tasks.length?tasks.map(t=>{const left=Math.max(0,t.need-practiceOn(t.song,ds));return esc(t.song)+'×'+left+'/'+t.need;}).join('、'):'—';
+    week+=`<div class="daychip ${i===0?'today':''}"><div class="dc-d">${ds.slice(5)}</div><div class="dc-t">${chipTasks}</div></div>`;
+  }
+  const addForm=`<div class="card" style="background:#f3fbff;margin-top:12px;">
+    <h2>➕ 添加练习任务（可提前安排一周）</h2>
+    <div class="row"><div><label class="fld">练习日期</label><input id="plDate" type="date" value="${today()}"/></div>
+      <div><label class="fld">练习次数</label><input id="plNeed" type="number" min="1" value="1"/></div></div>
+    <label class="fld">曲目名称</label><input id="plSong" placeholder="例如：小星星"/>
+    <button class="btn" data-act="planAdd" style="margin-top:12px;width:100%;">添加任务</button>
+  </div>`;
+  const list=DB.music.slice().reverse();
+  const items=list.length?list.map(m=>{
+    return `<div class="item"><div class="ic">🎵</div>
+      <div class="body"><div class="tt">练琴 ${m.minutes} 分钟</div><div class="sub">${m.date} · ${m.awarded?'+⭐2':'（满30分钟得⭐2）'}</div></div>
+      <button class="del" data-act="muDel" data-id="${m.id}">删</button></div>`;
+  }).join(''):`<div class="hint">还没有练琴记录，今天练一首吧～</div>`;
+  $('#view').innerHTML=`<div class="card"><h2>🎵 音乐乐园 · 每日练习任务</h2>
+    <div class="hint">提前把未来一周每天的练习任务添加好；当天没练完的次数会自动顺延到第二天哦。</div>
+    <h2 style="margin-top:8px;">🎯 今天要练（含顺延）</h2>
+    ${todayList}</div>
+    <div class="card"><h2>🗓 本周练习计划</h2><div class="weekplan">${week}</div>
+      <div class="hint">蓝底=今天、白底=未来安排；每格显示「曲目×剩余/计划」。</div></div>
+    ${addForm}
+    <div class="card"><h2>🎼 每日练琴（计时）</h2>
+    <label class="fld">今天练琴多久（分钟）</label><input id="muMin" type="number" min="1" placeholder="30"/>
+    <button class="btn" data-act="muAdd" style="margin-top:12px;width:100%;">✅ 记录练琴（满30分钟 +⭐2）</button>
+    <div class="hint">每天练满 30 分钟得 2 颗星（按当天累计练琴时长计算，首次满 30 分钟即奖励；完成曲目本身不奖励星星）。</div>
+    <h2 style="margin-top:18px;">🎼 练琴记录</h2>${items}</div>`;
+}
+
+/* ============ 奖励商城 ============ */
+const REWARDS={
+  yuan:{cost:5,name:'1元零花钱',icon:'💰',cap:10,desc:'5⭐ 换 1元（每月最多换 10元）'},
+  cartoon:{cost:10,name:'看电影',icon:'🎬',cap:2,desc:'10⭐ 换一场电影（每月限 2次）'},
+  drink:{cost:10,name:'饮料一杯',icon:'🥤',cap:2,desc:'10⭐ 换一杯饮料（每月限 2次）'},
+};
+const PETS={
+  dog:{emoji:'🐶',name:'小狗',food:{name:'🦴 骨头',cost:3,exp:6},house:{emoji:'🏠',name:'狗窝',cost:10},toy:{name:'🎾 网球',cost:4,exp:10}},
+  rabbit:{emoji:'🐰',name:'兔子',food:{name:'🥕 胡萝卜',cost:3,exp:6},house:{emoji:'🏠',name:'兔笼',cost:10},toy:{name:'🥬 青菜',cost:4,exp:10}},
+  turtle:{emoji:'🐢',name:'乌龟',food:{name:'🐟 小鱼',cost:3,exp:6},house:{emoji:'🏠',name:'龟池',cost:10},toy:{name:'🪨 小石头',cost:4,exp:10}},
+  panda:{emoji:'🐼',name:'熊猫',food:{name:'🎋 竹子',cost:3,exp:6},house:{emoji:'🏠',name:'竹屋',cost:10},toy:{name:'🧸 玩偶',cost:4,exp:10}},
+  horse:{emoji:'🐴',name:'马',food:{name:'🌾 草料',cost:3,exp:6},house:{emoji:'🏠',name:'马厩',cost:10},toy:{name:'🍎 苹果',cost:4,exp:10}},
+  sheep:{emoji:'🐑',name:'羊',food:{name:'🌿 嫩草',cost:3,exp:6},house:{emoji:'🏠',name:'羊圈',cost:10},toy:{name:'🌸 小花',cost:4,exp:10}},
+};
+function renderPet(){
+  const isParent=DB.mode==='parent';
+  const pets=DB.pets||[];
+  let cards='';
+  if(pets.length){
+    cards=pets.map(pet=>{
+      const p=PETS[pet.type];const need=pet.level*10;const pct=Math.min(100,Math.round(pet.exp/need*100));
+      const petSize=Math.min(110,52+(pet.level-1)*9);
+      const houseSize=Math.min(60,24+(pet.house-1)*5);
+      const canFeed=DB.stars>=p.food.cost, canToy=DB.stars>=p.toy.cost, canHouse=DB.stars>=p.house.cost;
+      return `<div class="pet-card">
+        <div class="pet-hero" style="font-size:${petSize}px;transition:font-size .4s;">${p.emoji}</div>
+        <div class="pet-lv">${p.name} · Lv.${pet.level}</div>
+        <div style="font-size:${houseSize}px;line-height:1;transition:font-size .4s;">${p.house.emoji} ${p.house.name} Lv.${pet.house}</div>
+        <div class="fld" style="margin-top:6px;text-align:left;">成长值 ${pet.exp}/${need}</div>
+        <div class="mini-bar"><div style="width:${pct}%;"></div></div>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn green sm" data-act="petFeed" data-pid="${pet.id}" ${canFeed?'':'disabled'}>🍖 喂${p.food.name}（${p.food.cost}⭐）</button>
+          <button class="btn yellow sm" data-act="petToy" data-pid="${pet.id}" ${canToy?'':'disabled'}>🎁 玩具（${p.toy.cost}⭐）</button>
+        </div>
+        <div class="row" style="margin-top:6px;">
+          <button class="btn blue sm" data-act="petHouse" data-pid="${pet.id}" ${canHouse?'':'disabled'}>🏠 升级房子（${p.house.cost}⭐）</button>
+          ${isParent?`<button class="btn ghost sm" data-act="petRelease" data-pid="${pet.id}">放生</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  const canAdoptMore=pets.length<3;
+  const adoptDisabled=!canAdoptMore || DB.stars<5;
+  const adoptHint=!canAdoptMore?'最多只能同时养 3 只宠物啦':(DB.stars<5?'领养一只需要 5 ⭐，还差 '+(5-DB.stars)+' ⭐':'');
+  const opts=Object.keys(PETS).map(k=>{const p=PETS[k];return `<button class="pet-opt" data-act="adoptPet" data-type="${k}" ${adoptDisabled?'disabled':''}><div class="pet-emoji">${p.emoji}</div><div class="pet-nm">${p.name}</div></button>`;}).join('');
+  return `<div class="card" style="background:#fff7fb;margin-top:12px;"><h2>🐾 宠物乐园</h2>
+    ${cards}
+    <div class="hint">领养一只宠物需要 5 ⭐，最多同时养 3 只。喂食/送玩具加成长值，升级后动物和房子会变大哦！${adoptHint?'<br>'+adoptHint:''}</div>
+    <div class="pet-opts-title">🐣 领养新宠物（花费 5 ⭐）</div>
+    <div class="pet-grid">${opts}</div>
+  </div>`;
+}
+function monthUsed(type){const m=ym();return DB.rewards.history.filter(r=>r.type===type&&r.month===m).length;}
+function renderStore(){
+  const isParent=DB.mode==='parent';
+  const cards=Object.keys(REWARDS).map(k=>{
+    const r=REWARDS[k];const used=monthUsed(k);const left=r.cap-used;
+    const can=isParent && DB.stars>=r.cost && left>0;
+    return `<div class="reward">
+      <div class="ri">${r.icon}</div>
+      <div class="rbody"><div class="rname">${r.name}</div>
+        <div class="rcost">${r.desc}</div>
+        <div class="rlim">本月已用 ${used}/${r.cap} · 剩余 ${Math.max(left,0)}</div></div>
+      <button class="btn ${can?'yellow':'ghost'}" data-act="redeem" data-type="${k}" ${can?'':'disabled'}>${isParent?'兑换':'需家长'}</button>
+    </div>`;
+  }).join('');
+  const hist=DB.rewards.history.slice().reverse().slice(0,10);
+  const histHtml=hist.length?hist.map(h=>{const r=REWARDS[h.type];return `<div class="item"><div class="ic">${r.icon}</div><div class="body"><div class="tt">${r.name}</div><div class="sub">${h.month} · -⭐${h.cost}</div></div></div>`;}).join(''):'<div class="hint">还没有兑换记录。</div>';
+  $('#view').innerHTML=`<div class="card"><h2>🎁 奖励商城</h2>
+    <div class="stars-pill" style="display:inline-block;margin-bottom:10px;">⭐ 当前星星：${DB.stars}</div>
+    ${cards}
+    <div class="hint">${isParent?'点击「兑换」即可扣除星星并记录。':'兑换需要爸爸妈妈在「家长模式」里确认哦～'}</div>
+    <h2 style="margin-top:18px;">📜 兑换记录</h2>${histHtml}</div>${renderPet()}`;
+}
+function redeem(type){
+  const r=REWARDS[type];const m=ym();const used=monthUsed(type);
+  if(DB.stars<r.cost){toast('星星不够啦，还差'+(r.cost-DB.stars)+'⭐');return;}
+  if(used>=r.cap){toast(r.name+'本月已达上限('+r.cap+')');return;}
+  DB.stars-=r.cost;
+  DB.rewards.history.push({type,cost:r.cost,ts:Date.now(),month:m});
+  addActivity(today(),'奖励商城','兑换'+r.name,-r.cost);
+  save(); renderStore(); renderNav(); checkBadges();
+  toast('兑换成功！🎉');
+}
+function getPet(pid){return (DB.pets||[]).find(p=>p.id===pid);}
+function petFeed(pid){
+  const pet=getPet(pid);if(!pet)return;const p=PETS[pet.type];
+  if(DB.stars<p.food.cost){toast('星星不够啦，还差'+(p.food.cost-DB.stars)+'⭐');return;}
+  DB.stars-=p.food.cost;addActivity(today(),'宠物乐园','喂养'+p.name,-p.food.cost);
+  pet.exp+=p.food.exp;let up=false;
+  while(pet.exp>=pet.level*10){pet.exp-=pet.level*10;pet.level++;up=true;}
+  save();renderNav();renderStore();
+  toast(up?('🎉 升级啦！'+p.emoji+' 长大到 Lv.'+pet.level):('喂食成功，成长值 +'+p.food.exp));
+}
+function petToy(pid){
+  const pet=getPet(pid);if(!pet)return;const p=PETS[pet.type];
+  if(DB.stars<p.toy.cost){toast('星星不够啦，还差'+(p.toy.cost-DB.stars)+'⭐');return;}
+  DB.stars-=p.toy.cost;addActivity(today(),'宠物乐园','送'+p.name+p.toy.name,-p.toy.cost);
+  pet.exp+=p.toy.exp;let up=false;
+  while(pet.exp>=pet.level*10){pet.exp-=pet.level*10;pet.level++;up=true;}
+  save();renderNav();renderStore();
+  toast(up?('🎉 升级啦！'+p.emoji+' 长大到 Lv.'+pet.level):('送玩具成功，成长值 +'+p.toy.exp));
+}
+function petHouse(pid){
+  const pet=getPet(pid);if(!pet)return;const p=PETS[pet.type];
+  if(DB.stars<p.house.cost){toast('星星不够啦，还差'+(p.house.cost-DB.stars)+'⭐');return;}
+  DB.stars-=p.house.cost;addActivity(today(),'宠物乐园','升级'+p.name+'的房子',-p.house.cost);
+  pet.house++;save();renderNav();renderStore();
+  toast('🏠 '+p.name+'的房子升级到 Lv.'+pet.house);
+}
+function petAdopt(t){
+  if(!PETS[t])return;
+  if((DB.pets||[]).length>=3){toast('最多只能同时养 3 只宠物啦，先放生一只吧');return;}
+  if(DB.stars<5){toast('领养需要 5 颗星，还差 '+(5-DB.stars)+' ⭐');return;}
+  DB.stars-=5;addActivity(today(),'宠物乐园','领养'+PETS[t].name,-5);
+  DB.pets.push({id:uid(),type:t,level:1,exp:0,house:1});
+  save();renderNav();renderStore();toast('领养了'+PETS[t].name+'！🎉（花费 5 ⭐）');
+}
+function petRelease(pid){
+  if(DB.mode!=='parent'){toast('放生需要家长模式哦');return;}
+  DB.pets=DB.pets.filter(p=>p.id!==pid);save();renderStore();toast('已放生一只宠物');
+}
+
+/* ============ 汇总分析 ============ */
+let statRange='7';
+function inRange(dStr){
+  if(statRange==='all')return true;
+  const t=parseD(dStr);const now=new Date();
+  if(statRange==='month')return dStr.startsWith(ym());
+  const cut=new Date(now);cut.setDate(now.getDate()-6);return t>=cut;
+}
+function ymdate(ymStr){const p=ymStr.split('-');return p[0]+'-'+p[1]+'-01';}
+function buildFeed(){
+  const items=[];
+  DB.homework.filter(h=>h.done&&h.doneDate).forEach(h=>items.push({ts:h.doneTs||0,date:h.doneDate,icon:'📝',text:'完成作业：'+h.text,stars:1}));
+  DB.reading.forEach(r=>items.push({ts:r.ts||0,date:r.date,icon:'📚',text:'阅读《'+r.book+'》'+r.pages+'页',stars:1}));
+  DB.exercise.forEach(e=>items.push({ts:e.ts||0,date:e.date,icon:'🏃',text:e.type+' '+e.minutes+'分钟',stars:1}));
+  DB.music.forEach(m=>{items.push({ts:m.ts||0,date:m.date,icon:'🎵',text:'练琴 '+m.minutes+'分钟'+(m.awarded?'（+⭐2）':''),stars:m.awarded?2:0});});
+  DB.english.forEach(e=>{items.push({ts:e.ts||0,date:e.date,icon:e.type==='read'?'🎧':'✍️',text:(e.type==='read'?'听读':'书写')+' '+e.minutes+'分钟'+(e.awarded?'（+⭐1）':''),stars:e.awarded?1:0});});
+  DB.practiceLog.forEach(p=>items.push({ts:p.ts,date:p.date,icon:'🎻',text:'练习《'+esc(p.song)+'》',stars:0}));
+  DB.quizLog.forEach(q=>items.push({ts:q.ts,date:q.date,icon:'➗',text:'算术练习 答对'+q.correct+'/'+q.problems,stars:q.stars}));
+  DB.sudokuLog.forEach(s=>items.push({ts:s.ts,date:s.date,icon:'🔢',text:s.size+'×'+s.size+'数独完成',stars:s.stars}));
+  DB.rewards.history.forEach(r=>items.push({ts:r.ts,date:ymdate(r.month),icon:'🎁',text:'兑换'+REWARDS[r.type].name,stars:-r.cost}));
+  return items.sort((a,b)=>b.ts-a.ts);
+}
+function renderStats(){
+  const R=statRange;
+  const rd=DB.reading.filter(r=>inRange(r.date));
+  const ex=DB.exercise.filter(e=>inRange(e.date));
+  const mu=DB.music.filter(m=>inRange(m.date));
+  const qz=DB.quizLog.filter(q=>inRange(q.date));
+  const su=DB.sudokuLog.filter(s=>inRange(s.date));
+  const rwF=DB.rewards.history.filter(r=>{ if(R==='all')return true; if(R==='month')return r.month===ym(); const cut=new Date();cut.setDate(cut.getDate()-6); return parseD(ymdate(r.month))>=cut; });
+  const enR=DB.english.filter(e=>e.type==='read'&&inRange(e.date));
+  const enW=DB.english.filter(e=>e.type==='write'&&inRange(e.date));
+  const starsEarn=DB.activity.filter(a=>a.stars>0 && inRange(a.date)).reduce((s,a)=>s+a.stars,0);
+  const stats=[
+    {ic:'⭐',v:starsEarn,l:'获得星星'},
+    {ic:'📚',v:rd.length,l:'读书（本）'},
+    {ic:'📖',v:rd.reduce((s,r)=>s+r.pages,0),l:'阅读（页）'},
+    {ic:'🏃',v:ex.length,l:'运动（次）'},
+    {ic:'⏱️',v:ex.reduce((s,e)=>s+e.minutes,0),l:'运动（分）'},
+    {ic:'🎵',v:mu.length,l:'练琴（天）'},
+    {ic:'🎻',v:DB.practiceLog.filter(p=>inRange(p.date)).length,l:'曲目练习（次）'},
+    {ic:'⏰',v:mu.reduce((s,m)=>s+m.minutes,0),l:'练琴（分）'},
+    {ic:'➗',v:qz.length,l:'算术（次）'},
+    {ic:'🔢',v:su.length,l:'数独（次）'},
+    {ic:'🔤',v:enR.length,l:'英语听读（次）'},
+    {ic:'✍️',v:enW.length,l:'英语书写（次）'},
+    {ic:'🎁',v:rwF.length,l:'兑换（次）'},
+  ];
+  const grid=stats.map(s=>`<div class="stat"><div class="sv">${s.ic} ${s.v}</div><div class="sl">${s.l}</div></div>`).join('');
+  const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(ymd(d));}
+  const vals=days.map(d=>DB.activity.filter(a=>a.date===d&&a.stars>0).reduce((s,a)=>s+a.stars,0));
+  const maxV=Math.max(1,...vals);
+  const bw=34,gap=8;const chartW=days.length*(bw+gap);
+  let bars='';
+  days.forEach((d,i)=>{const h=Math.round(vals[i]/maxV*90)+4;const x=i*(bw+gap);
+    bars+=`<rect x="${x}" y="${100-h}" width="${bw}" height="${h}" rx="6" fill="url(#g${i%2})"/>`;
+    bars+=`<text x="${x+bw/2}" y="${100-h-4}" font-size="11" text-anchor="middle" fill="#a98fb5">${vals[i]}</text>`;
+    bars+=`<text x="${x+bw/2}" y="118" font-size="10" text-anchor="middle" fill="#b3a1bd">${d.slice(5)}</text>`;});
+  const chart=`<svg viewBox="0 0 ${chartW} 128" width="100%" style="max-width:420px;margin:6px auto 0;display:block;">
+    <defs><linearGradient id="g0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFB3D9"/><stop offset="1" stop-color="#D7B3FF"/></linearGradient>
+    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A0D8FF"/><stop offset="1" stop-color="#B5EAD7"/></linearGradient></defs>
+    ${bars}</svg>`;
+  const feed=buildFeed().filter(f=>inRange(f.date)).slice(0,30);
+  const feedHtml=feed.length?`<ul class="feed">`+feed.map(f=>`<li><div class="fi">${f.icon}</div><div class="ft">${esc(f.text)}<div style="font-size:11px;color:#b3a1bd;">${f.date}</div></div><div class="fs ${f.stars<0?'neg':''}">${f.stars>0?'+⭐'+f.stars:(f.stars<0?f.stars:'')}</div></li>`).join('')+`</ul>`:'<div class="hint">这段时间还没有记录。</div>';
+  $('#view').innerHTML=`<div class="card"><h2>📊 汇总分析</h2>
+    <div class="range-btns">
+      <button class="btn ghost sm ${R==='7'?'active':''}" data-act="range" data-r="7">最近7天</button>
+      <button class="btn ghost sm ${R==='month'?'active':''}" data-act="range" data-r="month">本月</button>
+      <button class="btn ghost sm ${R==='all'?'active':''}" data-act="range" data-r="all">全部</button>
+    </div>
+    <div class="stat-grid">${grid}</div>
+    <h2 style="margin-top:18px;">📈 最近7天每日星星</h2>${chart}
+    <h2 style="margin-top:18px;">🕒 最近记录</h2>${feedHtml}
+    <div class="hint">💡 历史记录查看方式：每个模块（阅读/运动/练琴/兑换）都保留了自己的列表；这里「汇总分析」会把它们按时间汇总成统计与图表。数据全部存在本机浏览器，不会上传，换设备或清缓存会丢失，记得定期用「💾 数据管理」导出备份。</div>
+    </div>`;
+}
+
+/* ============ 图片压缩 ============ */
+function compressImage(file,maxDim){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{const img=new Image();img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>h&&w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}else if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      res(c.toDataURL('image/jpeg',0.7));
+    };img.onerror=rej;img.src=fr.result;};
+    fr.onerror=rej;fr.readAsDataURL(file);
+  });
+}
+
+/* ============ 模式 / 密码 ============ */
+function openModeSetup(){
+  $('#modal').innerHTML=`<h3>🔐 设置密码</h3>
+    <div class="hint">先设一个「家长密码」(4位数字)，再设一个「孩子密码」(4位数字)。之后可用密码切换模式。</div>
+    <label class="fld">家长密码（4位数字）</label><input id="pParent" type="password" inputmode="numeric" maxlength="4" placeholder="例如 1234"/>
+    <label class="fld">孩子密码（4位数字）</label><input id="pChild" type="password" inputmode="numeric" maxlength="4" placeholder="例如 5678"/>
+    <button class="btn" data-act="savePass" style="margin-top:14px;width:100%;">保存并开始</button>`;
+  $('#mask').classList.add('show');
+}
+function openModeSwitch(){
+  $('#modal').innerHTML=`<h3>🔄 切换模式</h3>
+    <div class="hint">当前：${DB.mode==='parent'?'👨‍👩‍👧 家长模式':'👶 孩子模式'}。切换到目标模式需要输入对应密码。</div>
+    <div class="row" style="margin-bottom:10px;">
+      <button class="btn blue" data-act="doMode" data-to="child" style="flex:1;">👶 孩子模式</button>
+      <button class="btn yellow" data-act="doMode" data-to="parent" style="flex:1;">👨‍👩‍👧 家长模式</button>
+    </div>
+    <label class="fld">输入该模式密码</label><input id="mPass" type="password" inputmode="numeric" maxlength="4" placeholder="4位数字"/>
+    <button class="btn ghost" data-act="closeModal" style="margin-top:14px;width:100%;">取消</button>`;
+  $('#mask').classList.add('show');
+  setTimeout(()=>{const e=$('#mPass');if(e)e.focus();},50);
+}
+function doMode(to){
+  const v=$('#mPass').value;
+  const correct = to==='parent'?DB.pass.parent:DB.pass.child;
+  if(v!==correct){toast('密码不对哦');return;}
+  DB.mode=to;save();closeModal();showModule(cur);
+  toast(to==='parent'?'已切换到家长模式':'已切换到孩子模式');
+}
+
+/* ============ 数据管理 ============ */
+function openDataMgmt(){
+  const isParent=DB.mode==='parent';
+  const sy=DB.sync;
+  const syncCard=`
+    <div class="card" style="margin-top:14px;background:#eef6ff;">
+      <h2>☁️ 云同步（让各设备数据一致）</h2>
+      <div class="hint">开启后，数据会自动备份到云端：在微信里改、桌面图标里也同步看到。只用「家长模式」配置一次。推荐用免费的 GitHub Gist（只需一个仅 gist 权限的 Token）。</div>
+      <label class="fld">存储方式</label>
+      <select id="syncProvider">
+        <option value="gist" ${sy.provider==='gist'?'selected':''}>GitHub Gist（免费）</option>
+        <option value="custom" ${sy.provider==='custom'?'selected':''}>自定义接口</option>
+      </select>
+      <label class="fld" style="margin-top:8px;">访问令牌 Token</label>
+      <input id="syncToken" type="password" placeholder="粘贴你的 Token" value="${esc(sy.token)}"/>
+      <label class="fld" style="margin-top:8px;">Gist ID（选 GitHub 时填）</label>
+      <input id="syncId" placeholder="Gist 的 ID" value="${esc(sy.gistId)}"/>
+      <label class="fld" style="margin-top:8px;">自定义接口地址（选自定义时填，需支持 GET 取 / PUT 存 JSON）</label>
+      <input id="syncUrl" placeholder="https://.../zaoting.json" value="${esc(sy.customUrl||'')}"/>
+      <label class="row" style="margin-top:10px;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="syncAuto" ${sy.auto?'checked':''}/> 自动同步（每次改动自动上传、打开自动拉取）</label>
+      <div id="syncStatus" class="hint">${sy.lastSync?('上次同步：'+new Date(sy.lastSync).toLocaleString()):'尚未同步'}</div>
+      <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px;">
+        <button class="btn green sm" data-act="syncSave">💾 保存设置</button>
+        <button class="btn blue sm" data-act="syncTest">🔍 连接测试</button>
+        <button class="btn yellow sm" data-act="syncPush">⬆️ 立即上传</button>
+        <button class="btn yellow sm" data-act="syncPull">⬇️ 立即拉取</button>
+      </div>
+    </div>`;
+  $('#modal').innerHTML=`<h3>💾 数据管理</h3>
+    <div class="hint">${isParent?'（家长模式）导出可备份，导入/清空请谨慎。':'查看导出即可，导入与清空需家长模式。'}</div>
+    <button class="btn green" data-act="exportData" style="width:100%;margin-bottom:10px;">⬇️ 导出备份（下载JSON）</button>
+    <button class="btn blue" data-act="importData" style="width:100%;margin-bottom:10px;" ${isParent?'':'disabled'}>⬆️ 导入恢复</button>
+    <input id="impFile" type="file" accept="application/json" style="display:none"/>
+    <button class="btn" data-act="clearData" style="width:100%;background:linear-gradient(135deg,#ff9a9e,#ff6b6b);" ${isParent?'':'disabled'}>🗑 清空所有数据</button>
+    ${isParent?syncCard:''}
+    <button class="btn ghost" data-act="closeModal" style="margin-top:14px;width:100%;">关闭</button>`;
+  $('#mask').classList.add('show');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='早安学习乐园-备份-'+today()+'.json';a.click();
+  toast('已导出备份');
+}
+function importData(){
+  const f=$('#impFile');f.click();
+  f.onchange=()=>{const file=f.files[0];if(!file)return;const rd=new FileReader();
+    rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d||!d.homework)throw 0;DB=Object.assign({},DEFAULT,d);save();closeModal();showModule(cur);toast('导入成功！');}catch(e){toast('文件格式不对');}};
+    rd.readAsText(file);};
+}
+function clearData(){
+  if(confirm('确定清空所有数据吗？此操作不可恢复！')){
+    localStorage.removeItem(KEY);DB=JSON.parse(JSON.stringify(DEFAULT));save();closeModal();showModule('home');toast('已清空');
+  }
+}
+function closeModal(){$('#mask').classList.remove('show');}
+
+/* ============ 云同步 ============ */
+let _syncTimer=null, _busy=false;
+function syncHeaders(){
+  const s=DB.sync; const h={'Content-Type':'application/json'};
+  if(s.provider==='gist'){ if(s.token)h['Authorization']='token '+s.token; }
+  else { if(s.token)h['Authorization']='Bearer '+s.token; }
+  return h;
+}
+function setSyncStatus(t){const el=document.getElementById('syncStatus'); if(el)el.textContent=t;}
+function scheduleSyncPush(){ if(_busy||!DB.sync.enabled||!DB.sync.auto)return; clearTimeout(_syncTimer); _syncTimer=setTimeout(()=>{syncPush();},800); }
+async function syncPush(){
+  if(_busy)return; const s=DB.sync;
+  if(!s.enabled){toast('请先在云同步里保存设置并开启');return;}
+  _busy=true;
+  try{
+    if(s.provider==='gist'){
+      if(!s.token||!s.gistId){toast('请填写 Token 和 Gist ID');return;}
+      const res=await fetch('https://api.github.com/gists/'+s.gistId,{method:'PATCH',headers:syncHeaders(),body:JSON.stringify({files:{'zaoting.json':{content:JSON.stringify(DB)}}})});
+      if(!res.ok)throw new Error('HTTP '+res.status);
+    } else {
+      if(!s.token||!s.customUrl){toast('请填写 Token 和接口地址');return;}
+      const res=await fetch(s.customUrl,{method:'PUT',headers:syncHeaders(),body:JSON.stringify(DB)});
+      if(!res.ok)throw new Error('HTTP '+res.status);
+    }
+    s.lastSync=Date.now(); saveLocal();
+    setSyncStatus('✅ 已上传到云端 '+new Date().toLocaleTimeString());
+  }catch(e){ toast('上传失败：'+(e.message||e)); }
+  finally{ _busy=false; }
+}
+async function syncPull(){
+  const s=DB.sync; if(!s.enabled){toast('请先开启云同步');return null;}
+  let text;
+  if(s.provider==='gist'){
+    if(!s.token||!s.gistId){toast('请填写 Token 和 Gist ID');return null;}
+    const res=await fetch('https://api.github.com/gists/'+s.gistId,{headers:syncHeaders()});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json(); const f=data.files&&data.files['zaoting.json']; text=f?f.content:null;
+  } else {
+    if(!s.token||!s.customUrl){toast('请填写 Token 和接口地址');return null;}
+    const res=await fetch(s.customUrl,{headers:syncHeaders()});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    text=await res.text();
+  }
+  if(!text){toast('云端还没有数据，请先上传一次');return null;}
+  const d=JSON.parse(text); if(!d||!d.homework)throw new Error('格式不对');
+  DB=Object.assign({},DEFAULT,d); DB.sync=s; s.lastSync=Date.now(); saveLocal();
+  renderNav(); showModule(cur);
+  setSyncStatus('✅ 已从云端拉取 '+new Date().toLocaleTimeString());
+  return DB;
+}
+function syncSave(){
+  const s=DB.sync;
+  s.provider=document.getElementById('syncProvider').value;
+  s.token=document.getElementById('syncToken').value.trim();
+  s.gistId=document.getElementById('syncId').value.trim();
+  s.customUrl=document.getElementById('syncUrl').value.trim();
+  s.auto=document.getElementById('syncAuto').checked;
+  s.enabled=!!(s.token && (s.provider==='gist'?s.gistId:s.customUrl));
+  saveLocal(); toast(s.enabled?'云同步已开启 ☁️':'已保存（还需填写完整信息才会开启）');
+  if(s.enabled) syncPush();
+}
+async function syncTest(){
+  const s=DB.sync;
+  if(s.provider==='gist'){ if(!s.token||!s.gistId){toast('先填写 Token 和 Gist ID');return;} }
+  else { if(!s.token||!s.customUrl){toast('先填写 Token 和接口地址');return;} }
+  setSyncStatus('测试中…');
+  try{
+    if(s.provider==='gist'){ const res=await fetch('https://api.github.com/gists/'+s.gistId,{headers:syncHeaders()}); if(!res.ok)throw new Error('HTTP '+res.status); }
+    else { const res=await fetch(s.customUrl,{headers:syncHeaders()}); if(!res.ok)throw new Error('HTTP '+res.status); }
+    setSyncStatus('✅ 连接成功，可以读取');
+  }catch(e){ setSyncStatus('❌ 连接失败：'+(e.message||e)); }
+}
+
+
+/* ============ 事件 ============ */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]'); if(!el)return;
+  const act=el.dataset.act, id=el.dataset.id, type=el.dataset.type, size=el.dataset.size, r=el.dataset.r, to=el.dataset.to;
+  if(act==='nav'){showModule(id);}
+  else if(act==='hwAddItem'){
+    const box=document.getElementById('hwItems');if(!box)return;
+    const wrap=document.createElement('div');wrap.className='hw-item';wrap.style.cssText='display:flex;gap:8px;margin-top:6px;';
+    wrap.innerHTML='<input class="hwText" style="flex:1" placeholder="例如：数学练习册第5页"/><button class="btn ghost sm" data-act="hwRmItem" type="button">✕</button>';
+    box.appendChild(wrap);
+  }
+  else if(act==='hwRmItem'){const it=e.target.closest('.hw-item');if(it)it.remove();}
+  else if(act==='hwAdd'){
+    const due=$('#hwDue').value||today();
+    const inputs=document.querySelectorAll('#hwItems .hwText');
+    let added=0;
+    inputs.forEach(inp=>{const t=inp.value.trim();if(t){DB.homework.push({id:uid(),text:t,due,done:false,doneDate:null});added++;}});
+    if(!added){toast('先写点作业内容吧');return;}
+    save();renderHomework();toast('已添加 '+added+' 项作业 📝');
+  }
+  else if(act==='hwDone'){const h=DB.homework.find(x=>x.id===id);if(h){const was=h.done;h.done=!h.done;h.doneDate=h.done?today():null;h.doneTs=Date.now();if(h.done){DB.stars+=1;DB.starsEarned+=1;addActivity(today(),'校内作业','完成：'+h.text,1);checkBadges();}else if(was){DB.stars=Math.max(0,DB.stars-1);addActivity(today(),'校内作业','撤回完成：'+h.text,-1);}save();renderNav();showModule(cur);}}
+  else if(act==='hwDel'){DB.homework=DB.homework.filter(x=>x.id!==id);save();renderHomework();}
+  else if(act==='rdSnap'){$('#rdFile').setAttribute('capture','environment');$('#rdFile').click();}
+  else if(act==='rdPick'){$('#rdFile').removeAttribute('capture');$('#rdFile').click();}
+  else if(act==='rdAdd'){const b=$('#rdBook').value.trim(),p=parseInt($('#rdPages').value,10);if(!b||!p){toast('书名和页数都要填哦');return;}const cover=el._cover||null;DB.reading.push({id:uid(),book:b,pages:p,cover,date:today(),ts:Date.now()});el._cover=null;addStars(1,'阅读乐园','阅读《'+b+'》'+p+'页');save();renderReading();toast('阅读已记录 +⭐1 📚');}
+  else if(act==='rdDel'){DB.reading=DB.reading.filter(x=>x.id!==id);save();renderReading();}
+  else if(act==='quizStart'){quizStart();}
+  else if(act==='quizSubmit'){quizSubmit();}
+  else if(act==='sudokuNew'){sudokuNew(size);}
+  else if(act==='sudokuCheck'){sudokuCheck();}
+  else if(act==='exAdd'){const t=$('#exType').value,mn=parseInt($('#exMin').value,10);if(!mn){toast('填写运动时长');return;}DB.exercise.push({id:uid(),type:t,minutes:mn,date:today(),ts:Date.now()});addStars(1,'运动乐园',t+' '+mn+'分钟');save();renderNav();renderExercise();toast('运动打卡 +⭐1');}
+  else if(act==='exDel'){DB.exercise=DB.exercise.filter(x=>x.id!==id);save();renderExercise();}
+  else if(act==='muAdd'){const mn=parseInt($('#muMin').value,10);if(!mn){toast('填写练琴时长');return;}DB.music.push({id:uid(),minutes:mn,date:today(),ts:Date.now(),awarded:false});const tMin=DB.music.filter(m=>m.date===today()).reduce((s,m)=>s+m.minutes,0);const got=DB.music.some(m=>m.date===today()&&m.awarded);if(tMin>=DB.musicGoal&&!got){const rec=DB.music.find(m=>m.date===today()&&!m.awarded);if(rec)rec.awarded=true;addStars(2,'音乐乐园','练琴满'+tMin+'分钟');toast('练琴满30分钟 +⭐2');}else{save();toast('已记录练琴（满30分钟得⭐2）');}renderNav();renderMusic();}
+  else if(act==='muDel'){DB.music=DB.music.filter(x=>x.id!==id);save();renderMusic();}
+  else if(act==='planAdd'){const ds=$('#plDate').value||today();const n=$('#plSong').value.trim();const g=parseInt($('#plNeed').value,10)||1;if(!n){toast('填好曲目名称哦');return;}DB.plan.push({id:uid(),date:ds,song:n,need:g,awarded:false});save();renderMusic();toast('已添加任务 🎵');}
+  else if(act==='practice'){const name=el.dataset.song;if(!name)return;DB.practiceLog.push({id:uid(),song:name,date:today(),ts:Date.now()});const out=outstanding(name);if(out===0){const s=DB.plan.find(t=>t.song===name);if(s&&!s.awarded){s.awarded=true;toast('🏆 《'+name+'》全部练完！');}else{toast('练习完成');}}else{toast('练习完成');}renderNav();renderMusic();}
+  else if(act==='practiceUndo'){const name=el.dataset.song;if(!name)return;const arr=DB.practiceLog.filter(p=>p.song===name).sort((a,b)=>b.ts-a.ts);if(!arr.length){toast('没有可撤销的练习');return;}const last=arr[0];DB.practiceLog=DB.practiceLog.filter(p=>p.id!==last.id);const s=DB.plan.find(t=>t.song===name);if(s&&outstanding(name)>0)s.awarded=false;save();renderMusic();toast('已撤销一次练习 ↩');}
+  else if(act==='planDel'){const name=el.dataset.song;if(!name)return;DB.plan=DB.plan.filter(t=>t.song!==name);save();renderMusic();toast('已删除该曲目计划');}
+  else if(act==='setAvatar'){const f=$('#avatarFile');if(f)f.click();}
+  else if(act==='redeem'){redeem(type);}
+  else if(act==='adoptPet'){petAdopt(el.dataset.type);}
+  else if(act==='petFeed'){petFeed(el.dataset.pid);}
+  else if(act==='petToy'){petToy(el.dataset.pid);}
+  else if(act==='petHouse'){petHouse(el.dataset.pid);}
+  else if(act==='petRelease'){petRelease(el.dataset.pid);}
+  else if(act==='enRec'){enRecToggle();}
+  else if(act==='enRecFile'){$('#enAudioFile').click();}
+  else if(act==='enReadAdd'){enReadAdd();}
+  else if(act==='enSnap'){$('#enImgFile').setAttribute('capture','environment');$('#enImgFile').click();}
+  else if(act==='enPick'){$('#enImgFile').removeAttribute('capture');$('#enImgFile').click();}
+  else if(act==='enWriteAdd'){enWriteAdd();}
+  else if(act==='engDel'){DB.english=DB.english.filter(x=>x.id!==id);save();renderEnglish();}
+  else if(act==='range'){statRange=r;renderStats();}
+  else if(act==='modeBtn'){} // handled separately
+  else if(act==='savePass'){const p=$('#pParent').value, c=$('#pChild').value;if(!/^\d{4}$/.test(p)||!/^\d{4}$/.test(c)){toast('请输入4位数字密码（家长和孩子各4位）');return;}DB.pass={parent:p,child:c};DB.mode='child';save();closeModal();renderNav();toast('密码已设置，开始吧！');}
+  else if(act==='doMode'){doMode(to);}
+  else if(act==='dataMgmt'){openDataMgmt();}
+  else if(act==='exportData'){exportData();}
+  else if(act==='importData'){importData();}
+  else if(act==='clearData'){clearData();}
+  else if(act==='syncSave'){syncSave();}
+  else if(act==='syncTest'){syncTest();}
+  else if(act==='syncPush'){syncPush();}
+  else if(act==='syncPull'){syncPull();}
+  else if(act==='closeModal'){closeModal();}
+});
+document.addEventListener('change',async e=>{
+  if(e.target.id==='rdFile'){
+    const file=e.target.files[0];if(!file)return;
+    try{const data=await compressImage(file,800);
+      const btn=document.querySelector('[data-act="rdAdd"]');if(btn)btn._cover=data;
+      toast('封面已添加 📷');
+    }catch(err){toast('图片读取失败');}
+    e.target.value='';
+  } else if(e.target.id==='avatarFile'){
+    const file=e.target.files[0];if(!file)return;
+    try{const data=await compressImage(file,400);
+      DB.avatar=data; save(); renderHome(); toast('头像已更新 🌟');
+    }catch(err){toast('图片读取失败');}
+    e.target.value='';
+  } else if(e.target.id==='enAudioFile'){
+    const file=e.target.files[0];if(!file)return;
+    try{const rd=new FileReader();rd.onload=()=>{const btn=document.querySelector('[data-act="enRec"]');if(btn)btn._audio=rd.result;const st=$('#enRecState');if(st)st.textContent='🎙 已选择录音文件，可以记录啦！';toast('录音已添加');};rd.readAsDataURL(file);}
+    catch(err){toast('录音读取失败');}
+    e.target.value='';
+  } else if(e.target.id==='enImgFile'){
+    const file=e.target.files[0];if(!file)return;
+    try{const data=await compressImage(file,800);const btn=document.querySelector('[data-act="enWriteAdd"]');if(btn)btn._cover=data;toast('照片已添加 📷');}
+    catch(err){toast('图片读取失败');}
+    e.target.value='';
+  }
+});
+$('#modeBtn').addEventListener('click',()=>{ if(!DB.pass.parent) openModeSetup(); else openModeSwitch(); });
+$('#mask').addEventListener('click',e=>{ if(e.target.id==='mask') closeModal(); });
+
+/* ============ 启动 ============ */
+async function boot(){
+  if(DB.sync.enabled){
+    try{ await syncPull(); }catch(e){ console.warn('云同步拉取失败',e); }
+  }
+  if(!DB.pass.parent){ openModeSetup(); }
+  renderNav();
+  showModule('home');
+}
+boot();
+</script>
+</body>
+</html>
